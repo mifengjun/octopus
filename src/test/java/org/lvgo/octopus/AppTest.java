@@ -1,4 +1,4 @@
-package org.lvgo;
+package org.lvgo.octopus;
 
 import static org.junit.Assert.assertTrue;
 
