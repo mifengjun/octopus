@@ -1,4 +1,6 @@
-package org.lvgo.octopus.bean;
+package org.lvgo.octopus.net;
+
+import org.lvgo.octopus.core.Data;
 
 /**
  * 网络音乐
@@ -7,5 +9,5 @@ package org.lvgo.octopus.bean;
  * @version 1.0
  * @date 2019/11/4 13:51
  */
-public class NetMusic extends NetData {
+public class Music extends Data {
 }

@@ -1,4 +1,4 @@
-package org.lvgo.octopus.bean;
+package org.lvgo.octopus.net;
 
 /**
  * 网络页面

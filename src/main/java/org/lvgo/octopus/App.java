@@ -1,21 +1,20 @@
 package org.lvgo.octopus;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * Hello world!
  */
 public class App {
     public static void main(String[] args) throws IOException {
-        Document document = Jsoup.connect("https://www.58pic.com/").get();
-        Elements img = document.select("img[src]");
-        img.forEach(element -> {
-            String href = element.attributes().get("src");
-            System.out.println(href);
-        });
+
+        JSONObject jsonObject = JSONObject.parseObject("{\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Official_MyProfileFeed__22\"}");
+        System.out.println(jsonObject.get("domid"));
     }
 }
