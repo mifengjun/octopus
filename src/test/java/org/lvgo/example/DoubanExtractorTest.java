@@ -18,7 +18,9 @@ class DoubanExtractorTest {
         // 翻页参数  每页20条, 递增
         String pageParam = "start=20";
 
-        String url = "https://movie.douban.com/subject/" + movieId + "/reviews" + starParam + "&" + pageParam;
-        Data extract = Octopus.init().url(url).get().extract(new DoubanExtractor());
+        String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
+//        String url = "https://movie.douban.com/subject/30166972/reviews?rating=&start=40";
+
+        Data extract = Octopus.init().url(url).get().extractor(new DoubanExtractor()).pageDown(true).pageSize(20).start();
     }
 }

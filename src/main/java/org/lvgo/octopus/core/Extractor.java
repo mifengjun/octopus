@@ -1,7 +1,7 @@
 package org.lvgo.octopus.core;
 
 /**
- * 数据提取器
+ * 数据提取
  *
  * @author lvgorice@gmail.com
  * @version 1.0
@@ -11,9 +11,7 @@ package org.lvgo.octopus.core;
 public interface Extractor {
 
     /**
-     * 从副本中提取你要的数据
-     *
-     * @return 可利用数据
+     * 提取数据
      */
     Data extract(Octopus octopus);
 }
