@@ -6,12 +6,12 @@ public class OctopusTest {
 
     @Test
     public void copy() {
-        Octopus.url("http://www.baidu.com").copy();
+        Octopus.init().url("http://www.baidu.com");
     }
 
     @Test
     public void url() {
-        Octopus.url("http://www.baidu.com");
+        Octopus.init().url("http://www.baidu.com");
     }
 
     @Test

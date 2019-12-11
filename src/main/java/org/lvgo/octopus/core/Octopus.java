@@ -30,19 +30,23 @@ public class Octopus {
      * 文档数据
      */
     private Document document;
+    /**
+     * 请求头
+     */
     private Map<String, String> headers;
 
-    public Octopus() {
-    }
-
-    private Octopus(String url) {
-        this.url = url;
+    private Octopus() {
         this.success = true;
         this.headers = new HashMap<>(5);
     }
 
-    public static Octopus url(String url) {
-        return new Octopus(url);
+    public static Octopus init() {
+        return new Octopus();
+    }
+
+    public Octopus url(String url) {
+        this.url = url;
+        return this;
     }
 
     public boolean isSuccess() {
@@ -70,20 +74,36 @@ public class Octopus {
     /**
      * 复制
      */
-    public Octopus copy() {
+    private void connect(boolean get) {
 
         try {
-            Connection connect = Jsoup.connect(this.url);
+            Connection connect;
+            connect = Jsoup.connect(this.url);
             if (!headers.isEmpty()) {
                 connect.headers(headers);
             }
-            this.document = connect.get();
+            if (get) {
+                this.document = connect.get();
+            } else {
+                this.document = connect.post();
+
+            }
         } catch (IOException e) {
             e.printStackTrace();
             this.success = false;
         }
+    }
+
+    public Octopus get() {
+        connect(true);
         return this;
     }
+
+    public Octopus post() {
+        connect(false);
+        return this;
+    }
+
 
     public Data extract(Extractor extractor) {
         return extractor.extract(this);
