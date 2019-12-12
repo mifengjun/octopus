@@ -5,14 +5,16 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lvgo.octopus.bean.BaseBean;
+import org.lvgo.octopus.bean.Data;
 import org.lvgo.octopus.bean.OctopusPage;
-import org.lvgo.octopus.core.Data;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
 import org.lvgo.octopus.util.RegexUtil;
 import org.lvgo.silent.TaskHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 16:48
  */
-public class WeiBoExtractor implements Extractor {
+public class WeiBoExtractor extends BaseBean implements Extractor {
 
     @Override
     public OctopusPage getPageInfo(Octopus octopus) {
@@ -63,7 +65,7 @@ public class WeiBoExtractor implements Extractor {
         } else {
         }
 
-        System.out.println(data.getDataList());
+        log.info(Arrays.toString(data.getDataList().toArray()));
     }
 
     private void getWbDetail(ArrayList<Map<String, Object>> datas, Element detail) {

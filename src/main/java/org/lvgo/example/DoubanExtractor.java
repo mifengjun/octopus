@@ -3,6 +3,7 @@ package org.lvgo.example;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lvgo.octopus.bean.BaseBean;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/11 14:15
  */
-public class DoubanExtractor implements Extractor {
+public class DoubanExtractor extends BaseBean implements Extractor {
 
     @Override
     public void extract(Octopus octopus) {
@@ -48,24 +49,27 @@ public class DoubanExtractor implements Extractor {
     /**
      * 获取影评基本信息
      *
-     * @param document 上线文
+     * @param document 上下文
      */
     private void getBaseInfo(Document document) {
+
+        // todo: 填到你想放的任何地方
+
         String title = document.getElementsByTag("title").text();
-        System.out.println("title : " + title.substring(0, title.indexOf("(")));
+        log.info("title : " + title.substring(0, title.indexOf("(")));
         Element drop = document.getElementsByClass("droplist").first();
         String rating = drop.getElementsByClass("rating").first().text();
-        System.out.println("全部评论 : " + rating.substring(rating.indexOf("(") + 1, rating.length() - 1));
+        log.info("全部评论 : " + rating.substring(rating.indexOf("(") + 1, rating.length() - 1));
         String rating5 = drop.getElementsByClass("rating5").first().text();
-        System.out.println("5星评论 : " + rating5.substring(rating5.indexOf("(") + 1, rating5.length() - 1));
+        log.info("5星评论 : " + rating5.substring(rating5.indexOf("(") + 1, rating5.length() - 1));
         String rating4 = drop.getElementsByClass("rating4").first().text();
-        System.out.println("4星评论 : " + rating4.substring(rating4.indexOf("(") + 1, rating4.length() - 1));
+        log.info("4星评论 : " + rating4.substring(rating4.indexOf("(") + 1, rating4.length() - 1));
         String rating3 = drop.getElementsByClass("rating3").first().text();
-        System.out.println("3星评论 : " + rating3.substring(rating3.indexOf("(") + 1, rating3.length() - 1));
+        log.info("3星评论 : " + rating3.substring(rating3.indexOf("(") + 1, rating3.length() - 1));
         String rating2 = drop.getElementsByClass("rating2").first().text();
-        System.out.println("2星评论 : " + rating2.substring(rating2.indexOf("(") + 1, rating2.length() - 1));
+        log.info("2星评论 : " + rating2.substring(rating2.indexOf("(") + 1, rating2.length() - 1));
         String rating1 = drop.getElementsByClass("rating1").first().text();
-        System.out.println("1星评论 : " + rating1.substring(rating1.indexOf("(") + 1, rating1.length() - 1));
+        log.info("1星评论 : " + rating1.substring(rating1.indexOf("(") + 1, rating1.length() - 1));
     }
 
     /**
@@ -79,13 +83,13 @@ public class DoubanExtractor implements Extractor {
         Document commentDetail = octopus.connect(href).getDocument();
         if (commentDetail != null) {
             String text = commentDetail.getElementsByClass("review-content").first().text();
-            System.out.println("text = " + text);
+            log.info("text = " + text);
             String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
-            System.out.println("attr = " + attr);
+            log.info("attr = " + attr);
         } else {
-            System.out.println(href + " is error!!");
+            log.info(href + " is error!!");
         }
-        System.out.println("---------------------------------------------------------");
+        log.info("---------------------------------------------------------");
     }
 
     /**

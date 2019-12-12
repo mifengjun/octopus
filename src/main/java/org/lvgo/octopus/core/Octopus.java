@@ -2,8 +2,12 @@ package org.lvgo.octopus.core;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
+import org.lvgo.octopus.bean.BaseBean;
+import org.lvgo.octopus.bean.Data;
 import org.lvgo.octopus.bean.OctopusPage;
+import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
 
 import java.io.IOException;
@@ -11,7 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 八爪魚抓取
+ * 八爪魚抓取 , 八爪鱼爪子比较多, 而且灵活.
+ * <p>
+ * 所以我们的爬虫也支持多节点, 多线程, 高容错, 高性能呢.
  * <p>
  * 提供网络地址及对应要求数据, 填入复制器, 对目标数据进行复制, 返回网页副本
  *
@@ -19,7 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 10:41
  */
-public class Octopus {
+public class Octopus extends BaseBean {
     /**
      * 爬取数据地址, 外部提供给抓取器的地址
      */
@@ -70,6 +76,12 @@ public class Octopus {
      * 是否开启多线程
      */
     private boolean concurrent;
+
+    /**
+     * 请求超时时间
+     */
+    private int timeoutMilliseconds = 30 * 1000;
+    private OctopusProxy octopusProxy;
 
     private Octopus() {
         this.success = true;
@@ -197,15 +209,46 @@ public class Octopus {
     }
 
     /**
+     * 设置超时时间, 默认30秒
+     *
+     * @param millis 毫秒值
+     * @return 返回一条大章鱼
+     */
+    public Octopus timeOut(int millis) {
+        Validate.isTrue(millis >= 0, "Timeout milliseconds must be 0 (infinite) or greater");
+        this.timeoutMilliseconds = millis;
+        return this;
+    }
+
+    public Octopus proxy(OctopusProxy octopusProxy) {
+        this.octopusProxy = octopusProxy;
+        return this;
+    }
+
+    /**
      * 连接获取页面数据, 通过控制url参数非空来决定数据地址
+     * <p>
+     * 统一入口, 所有请求连接通过此方法连接
      */
     public Octopus connect(String url) {
         try {
-            Connection connect;
-            connect = Jsoup.connect(url == null ? this.url : url);
+            // org.jsoup.Connection
+            Connection connect = Jsoup.connect(url == null ? this.url : url);
+
+            if (this.octopusProxy != null) {
+                // 获取随机代理
+                OctopusProxy octopusProxy = this.octopusProxy.randomProxy();
+                // 代理IP
+                connect.proxy(octopusProxy.getHost(), octopusProxy.getPort());
+            }
+
             if (!headers.isEmpty()) {
+                // 请求头
                 connect.headers(headers);
             }
+            // 请求超时时间
+            connect.timeout(timeoutMilliseconds);
+
             if (get) {
                 this.document = connect.get();
             } else {
@@ -241,6 +284,12 @@ public class Octopus {
         return this;
     }
 
+    /**
+     * 设置线程数
+     *
+     * @param count 线程数
+     * @return 大八爪鱼.... 咕噜咕噜..崩
+     */
     public Octopus threads(int count) {
         this.threadSize = count;
         this.concurrent = count > 1;
@@ -254,20 +303,26 @@ public class Octopus {
 
 
         // 打印此次抓取数据的基本信息
-        System.out.println("=================数据抓取参数===============");
-        System.out.println("目标地址 :" + this.url);
-        System.out.println("请求方式 :" + (this.get ? "GET" : "POST"));
-        System.out.println("提取器 :" + this.extractor.getClass().getSimpleName());
-        System.out.println("分页 :" + (this.pageDown ? "是" : "否"));
-        System.out.println("分页数 :" + this.page);
-        System.out.println("每页大小 :" + this.pageSize);
-        System.out.println("多线程 :" + (this.concurrent ? "是" : "否"));
-        System.out.println("线程数 :" + this.threadSize);
-        System.out.println("============================================");
+        log.info("=================数据抓取参数===============");
+        log.info("目标地址 :" + this.url);
+        log.info("请求方式 :" + (this.get ? "GET" : "POST"));
+        log.info("提取器 :" + this.extractor.getClass().getSimpleName());
+        log.info("分页 :" + (this.pageDown ? "是" : "否"));
+        log.info("分页数 :" + this.page);
+        log.info("每页大小 :" + this.pageSize);
+        log.info("多线程 :" + (this.concurrent ? "是" : "否"));
+        log.info("线程数 :" + this.threadSize);
+        log.info("============================================");
 
 
         // 连接获取上下文信息
         connect(null);
+
+        if (this.document == null) {
+            log.error("未获取到任何内容信息, 请分析!!");
+            return;
+        }
+
         // 获取总页数
         // 是否翻页, 默认不翻页
         if (!pageDown) {
@@ -291,6 +346,11 @@ public class Octopus {
     }
 
 
+    /**
+     * 啊? 这还要注释 , 返回线程数
+     *
+     * @return >-> 线程数
+     */
     public int getThreadSize() {
         return threadSize;
     }

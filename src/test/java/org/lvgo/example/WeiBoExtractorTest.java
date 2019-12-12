@@ -1,7 +1,6 @@
 package org.lvgo.example;
 
 import org.junit.jupiter.api.Test;
-import org.lvgo.octopus.core.Data;
 import org.lvgo.octopus.core.Octopus;
 
 import java.util.HashMap;

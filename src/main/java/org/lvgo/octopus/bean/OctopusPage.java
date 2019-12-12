@@ -9,7 +9,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/12 11:41
  */
-public class OctopusPage {
+public class OctopusPage extends BaseBean {
 
     /**
      * 总页数

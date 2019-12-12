@@ -11,16 +11,14 @@ class DoubanExtractorTest {
 //        String movieId = "30166972";
         // 机器人总动员
         String movieId = "2131459";
-
         String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
         Octopus.init()
                 .url(url)
                 .get()
                 .extractor(new DoubanExtractor())
-                .page(1)
                 .pageDown(true)
                 .pageSize(20)
-                .threads(1)
+                .threads(10)
                 .start();
     }
 }

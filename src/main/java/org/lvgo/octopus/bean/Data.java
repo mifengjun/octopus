@@ -1,4 +1,4 @@
-package org.lvgo.octopus.core;
+package org.lvgo.octopus.bean;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/11/4 13:47
  */
-public class Data {
+public class Data extends BaseBean {
 
     private String tableName;
     private List<Map<String, Object>> dataList;
