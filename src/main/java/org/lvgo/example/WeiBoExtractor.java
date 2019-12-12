@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Data;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
@@ -22,10 +23,11 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 16:48
  */
-public class WeiBoExtractor extends Extractor {
+public class WeiBoExtractor implements Extractor {
+
     @Override
-    public int getPage(Octopus octopus) {
-        return 0;
+    public OctopusPage getPageInfo(Octopus octopus) {
+        return null;
     }
 
     @Override

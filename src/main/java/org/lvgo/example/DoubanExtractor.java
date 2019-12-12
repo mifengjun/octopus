@@ -3,11 +3,13 @@ package org.lvgo.example;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
 import org.lvgo.silent.TaskHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,12 +19,13 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/11 14:15
  */
-public class DoubanExtractor extends Extractor {
+public class DoubanExtractor implements Extractor {
 
     @Override
     public void extract(Octopus octopus) {
         ArrayList<Map<String, Object>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
+
             Document document = octopus.getDocument();
             // 获取评论上下文
             Elements h2 = document.getElementsByTag("H2");
@@ -89,14 +92,34 @@ public class DoubanExtractor extends Extractor {
      * 获取总记录页数
      *
      * @param octopus 连接器(复制机)
-     * @return 总记录页数
+     * @return 分页信息
      */
     @Override
-    public int getPage(Octopus octopus) {
+    public OctopusPage getPageInfo(Octopus octopus) {
+        OctopusPage octopusPage = new OctopusPage();
+
         getBaseInfo(octopus.getDocument());
-        String totalPage = octopus.getDocument()
+
+        int page = octopus.getPage();
+        int pageSize = octopus.getPageSize();
+
+        int totalPage = Integer.valueOf(octopus.getDocument()
                 .getElementsByClass("thispage").first()
-                .attr("data-total-page");
-        return Integer.valueOf(totalPage);
+                .attr("data-total-page"));
+
+        octopusPage.setPageTotal(totalPage);
+
+        // 组装分页地址
+        List<String> urls = new ArrayList<>();
+        // 将源地址补充到地址池
+        urls.add(octopus.getUrl());
+        // 通过分页大小获取分页数据
+        for (int i = 1; i < (page != 0 ? page : totalPage); i++) {
+            String url = octopus.getUrl() + "?start=" + pageSize * i;
+            urls.add(url);
+        }
+
+        octopusPage.setUrls(urls);
+        return octopusPage;
     }
 }

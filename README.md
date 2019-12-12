@@ -11,6 +11,32 @@ octopus > pa!! pa!!
 
 
 ### 数据提取层
+
+数据提取分为两部分, 一部分为Http数据连接配置``Octopus`` , 另一部分为数据解析提取``Extractor``
+
+#### Octopus
+
+
+通过基于Jsoup进行简单封装后集成多项自定义可插拔式配置项来进行数据连接, 其中包括
+```$xslt
+a. 数据请求方式 , 默认为 GET请求
+b. 请求头, 按需设置, 不需要可不配置
+c. 是否翻页抓取
+d. 抓取页码, 抓几页
+e. pageSize每页数据量
+f. threadSize 线程数, 默认支持多线程
+```
+
+
+#### Extractor
+
+数据解析为用户自定义内容, 需实现接口该支接口目前有两个方法
+
+1. OctopusPage getPageInfo(Octopus octopus); // 分页数据处理
+
+2. void extract(Octopus octopus); // 解析页面
+
+
 #### 数据监控
 ### 数据解析层
 

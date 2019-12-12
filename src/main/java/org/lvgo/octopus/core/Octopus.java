@@ -3,12 +3,11 @@ package org.lvgo.octopus.core;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.silent.TaskHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +21,7 @@ import java.util.Map;
  */
 public class Octopus {
     /**
-     * 爬取数据地址
+     * 爬取数据地址, 外部提供给抓取器的地址
      */
     private String url;
     /**
@@ -41,7 +40,7 @@ public class Octopus {
     /**
      * 是否为 get 请求, 否则为 false
      */
-    private boolean get;
+    private boolean get = true;
 
     /**
      * 数据提取接口
@@ -270,7 +269,6 @@ public class Octopus {
         // 连接获取上下文信息
         connect(null);
         // 获取总页数
-        int totalPage = extractor.getPage(this);
         // 是否翻页, 默认不翻页
         if (!pageDown) {
             // 解析数据
@@ -278,16 +276,10 @@ public class Octopus {
             return;
         }
 
-        // 组装分页地址
-        List<String> urls = new ArrayList<>();
-        urls.add(url);
-        for (int i = 1; i < (page != 0 ? page : totalPage); i++) {
-            String url = this.url + "?start=" + pageSize * i;
-            urls.add(url);
-        }
+        OctopusPage octopusPage = extractor.getPageInfo(this);
 
         // 线程数大于 0 时, 启动多线程处理
-        new TaskHandler<String>(urls) {
+        new TaskHandler<String>(octopusPage.getUrls()) {
             @Override
             public void run(String url) {
                 // 建立连接
