@@ -6,9 +6,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lvgo.octopus.core.Data;
-import org.lvgo.octopus.core.Octopus;
 import org.lvgo.octopus.core.Extractor;
+import org.lvgo.octopus.core.Octopus;
 import org.lvgo.octopus.util.RegexUtil;
+import org.lvgo.silent.TaskHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,14 +22,20 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 16:48
  */
-public class WeiBoExtractor implements Extractor {
+public class WeiBoExtractor extends Extractor {
     @Override
-    public Data extract(Octopus octopus) {
+    public int getPage(Octopus octopus) {
+        return 0;
+    }
+
+    @Override
+    public void extract(Octopus octopus) {
         Data data = new Data();
         ArrayList<Map<String, Object>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
             Document document = octopus.getDocument();
             Elements scripts = document.getElementsByTag("script");
+
             for (Element script : scripts) {
                 if (RegexUtil.beginWith("<script>FM.view\\(\\{\"ns\":\"pl.content.homeFeed.index\",\"domid\":\"Pl_Official_MyProfileFeed", script.toString())) {
                     String outerHtml = script.outerHtml();
@@ -39,24 +46,32 @@ public class WeiBoExtractor implements Extractor {
                 }
             }
 
-            Elements wb_detail = document.getElementsByClass("WB_detail");
+            Elements wbDetail = document.getElementsByClass("WB_detail");
 
-            wb_detail.forEach(detail -> {
-                HashMap<String, Object> wbDetail = new HashMap<>();
-                Elements content = detail.getElementsByClass("WB_text W_f14");
-                wbDetail.put("content", content.text());
+            new TaskHandler<Element>(wbDetail) {
+                @Override
+                public void run(Element detail) {
+                    getWbDetail(datas, detail);
+                }
+            }.sync(true).execute(octopus.getThreadSize() > 1 ? octopus.getThreadSize() : 1);
 
-                Elements titles = detail.getElementsByClass("WB_from S_txt2");
-                String[] title = titles.text().split(" ");
-                wbDetail.put("dateTime", title[0] + " " + title[1]);
-                datas.add(wbDetail);
-
-            });
 
             data.setDataList(datas);
-            return data;
+
         } else {
-            return null;
         }
+
+        System.out.println(data.getDataList());
+    }
+
+    private void getWbDetail(ArrayList<Map<String, Object>> datas, Element detail) {
+        HashMap<String, Object> wbdetail = new HashMap<>();
+        Elements content = detail.getElementsByClass("WB_text W_f14");
+        wbdetail.put("content", content.text());
+
+        Elements titles = detail.getElementsByClass("WB_from S_txt2");
+        String[] title = titles.text().split(" ");
+        wbdetail.put("dateTime", title[0] + " " + title[1]);
+        datas.add(wbdetail);
     }
 }

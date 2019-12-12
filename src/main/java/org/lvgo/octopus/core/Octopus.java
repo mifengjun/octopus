@@ -3,9 +3,12 @@ package org.lvgo.octopus.core;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.lvgo.silent.TaskHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +44,7 @@ public class Octopus {
     private boolean get;
 
     /**
-     * 提取
+     * 数据提取接口
      */
     private Extractor extractor;
     /**
@@ -52,8 +55,23 @@ public class Octopus {
      * 翻页抓取
      */
     private boolean pageDown;
+    /**
+     * 页码
+     */
     private int page;
+    /**
+     * 每页大小
+     */
     private int pageSize;
+    /**
+     * 线程数
+     */
+    private int threadSize;
+    /**
+     * 是否开启多线程
+     */
+    private boolean concurrent;
+
     private Octopus() {
         this.success = true;
         this.headers = new HashMap<>(5);
@@ -61,6 +79,30 @@ public class Octopus {
 
     public static Octopus init() {
         return new Octopus();
+    }
+
+    public boolean isGet() {
+        return get;
+    }
+
+    public void setGet(boolean get) {
+        this.get = get;
+    }
+
+    public Extractor getExtractor() {
+        return extractor;
+    }
+
+    public void setExtractor(Extractor extractor) {
+        this.extractor = extractor;
+    }
+
+    public boolean isConcurrent() {
+        return concurrent;
+    }
+
+    public void setConcurrent(boolean concurrent) {
+        this.concurrent = concurrent;
     }
 
     public Data getData() {
@@ -156,7 +198,7 @@ public class Octopus {
     }
 
     /**
-     * 连接获取页面数据
+     * 连接获取页面数据, 通过控制url参数非空来决定数据地址
      */
     public Octopus connect(String url) {
         try {
@@ -200,16 +242,69 @@ public class Octopus {
         return this;
     }
 
+    public Octopus threads(int count) {
+        this.threadSize = count;
+        this.concurrent = count > 1;
+        return this;
+    }
+
     /**
-     * 章鱼开始甩腿
-     *
-     * @return 解析结果数据
+     * 章鱼开始甩腿 , 解析数据
      */
-    public Data start() {
-        // 建立连接
+    public void start() {
+
+
+        // 打印此次抓取数据的基本信息
+        System.out.println("=================数据抓取参数===============");
+        System.out.println("目标地址 :" + this.url);
+        System.out.println("请求方式 :" + (this.get ? "GET" : "POST"));
+        System.out.println("提取器 :" + this.extractor.getClass().getSimpleName());
+        System.out.println("分页 :" + (this.pageDown ? "是" : "否"));
+        System.out.println("分页数 :" + this.page);
+        System.out.println("每页大小 :" + this.pageSize);
+        System.out.println("多线程 :" + (this.concurrent ? "是" : "否"));
+        System.out.println("线程数 :" + this.threadSize);
+        System.out.println("============================================");
+
+
+        // 连接获取上下文信息
         connect(null);
-        // 解析数据
-        return extractor.extract(this);
+        // 获取总页数
+        int totalPage = extractor.getPage(this);
+        // 是否翻页, 默认不翻页
+        if (!pageDown) {
+            // 解析数据
+            extractor.extract(Octopus.this);
+            return;
+        }
+
+        // 组装分页地址
+        List<String> urls = new ArrayList<>();
+        urls.add(url);
+        for (int i = 1; i < (page != 0 ? page : totalPage); i++) {
+            String url = this.url + "?start=" + pageSize * i;
+            urls.add(url);
+        }
+
+        // 线程数大于 0 时, 启动多线程处理
+        new TaskHandler<String>(urls) {
+            @Override
+            public void run(String url) {
+                // 建立连接
+                connect(url);
+                // 解析数据
+                extractor.extract(Octopus.this);
+            }
+        }.sync(true).execute(threadSize > 1 ? threadSize : 1);
+    }
+
+
+    public int getThreadSize() {
+        return threadSize;
+    }
+
+    public void setThreadSize(int threadSize) {
+        this.threadSize = threadSize;
     }
 
     public String getUrl() {

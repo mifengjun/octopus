@@ -33,6 +33,13 @@
             <version>1.2.62</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.lvgo/silent -->
+        <dependency>
+            <groupId>org.lvgo</groupId>
+            <artifactId>silent</artifactId>
+            <version>1.0</version>
+        </dependency>
+
 
         <dependency>
             <groupId>junit</groupId>
