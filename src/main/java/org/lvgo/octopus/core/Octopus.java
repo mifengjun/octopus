@@ -10,7 +10,6 @@ import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,6 +87,13 @@ public class Octopus extends BaseBean {
         this.headers = new HashMap<>(5);
     }
 
+    /**
+     * 初始化八爪鱼
+     * <p>
+     * //TODO:在这里可以做每个八爪鱼的数据统一监听, 留好口子, 已被后续使用
+     *
+     * @return 鲜活的八爪鱼
+     */
     public static Octopus init() {
         return new Octopus();
     }
@@ -231,35 +237,44 @@ public class Octopus extends BaseBean {
      * 统一入口, 所有请求连接通过此方法连接
      */
     public Octopus connect(String url) {
+        String realUrl = url == null ? this.url : url;
+        // org.jsoup.Connection
+        Connection connect = Jsoup.connect(realUrl);
+
+        // 获取随机代理
+        OctopusProxy octopusProxy = this.octopusProxy.randomProxy();
+        if (this.octopusProxy != null) {
+
+            if (this.octopusProxy.isEmpty()) {
+                log.error("无可用代理IP");
+                this.success = false;
+                this.document = null;
+                return this;
+            }
+            // 代理IP
+            connect.proxy(octopusProxy.getHost(), octopusProxy.getPort());
+            log.info("使用代理ip:{},请求地址:{}", octopusProxy, realUrl);
+        }
+
+        if (!headers.isEmpty()) {
+            // 请求头
+            connect.headers(headers);
+        }
+        // 请求超时时间
+        connect.timeout(timeoutMilliseconds);
         try {
-            // org.jsoup.Connection
-            Connection connect = Jsoup.connect(url == null ? this.url : url);
-
-            if (this.octopusProxy != null) {
-                // 获取随机代理
-                OctopusProxy octopusProxy = this.octopusProxy.randomProxy();
-                // 代理IP
-                connect.proxy(octopusProxy.getHost(), octopusProxy.getPort());
-            }
-
-            if (!headers.isEmpty()) {
-                // 请求头
-                connect.headers(headers);
-            }
-            // 请求超时时间
-            connect.timeout(timeoutMilliseconds);
-
             if (get) {
                 this.document = connect.get();
             } else {
                 this.document = connect.post();
-
             }
             this.success = true;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             this.success = false;
             this.document = null;
+            log.error("请求失败, {}", e.getMessage());
+            this.octopusProxy.remove(octopusProxy);
+            connect(url);
         }
         return this;
     }
