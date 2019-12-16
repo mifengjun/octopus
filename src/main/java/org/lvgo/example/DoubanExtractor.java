@@ -7,7 +7,6 @@ import org.lvgo.octopus.bean.BaseBean;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
-import org.lvgo.silent.TaskHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,24 +25,39 @@ public class DoubanExtractor extends BaseBean implements Extractor {
     public void extract(Octopus octopus) {
         ArrayList<Map<String, Object>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
-
             Document document = octopus.getDocument();
             // 获取评论上下文
             Elements h2 = document.getElementsByTag("H2");
             if (h2.isEmpty()) {
                 return;
             }
+            // 并发处理
+            concurrentHandle(octopus, h2);
 
-            // 线程数大于0时, 启动多线程处理
-            new TaskHandler<Element>(h2) {
-                @Override
-                public void run(Element comment) {
-                    commentDetail(octopus, comment);
-                }
-            }.sync(true).execute(octopus.getPageSize() > 1 ? octopus.getPageSize() : 1);
         } else {
             //TODO:失败情况处理
         }
+    }
+
+    /**
+     * 解析评论详情
+     *
+     * @param octopus 上下文
+     * @param element 当前数据
+     */
+    @Override
+    public void elementHandle(Octopus octopus, Element element) {
+        String href = element.getElementsByTag("a").first().attr("href");
+        Document commentDetail = octopus.connect(href).getDocument();
+        if (commentDetail != null) {
+            String text = commentDetail.getElementsByClass("review-content").first().text();
+            log.info("text = " + text);
+            String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
+            log.info("attr = " + attr);
+        } else {
+            log.info(href + " is error!!");
+        }
+        log.info("---------------------------------------------------------");
     }
 
     /**
@@ -70,26 +84,6 @@ public class DoubanExtractor extends BaseBean implements Extractor {
         log.info("2星评论 : " + rating2.substring(rating2.indexOf("(") + 1, rating2.length() - 1));
         String rating1 = drop.getElementsByClass("rating1").first().text();
         log.info("1星评论 : " + rating1.substring(rating1.indexOf("(") + 1, rating1.length() - 1));
-    }
-
-    /**
-     * 解析评论详情
-     *
-     * @param octopus 抓取上下文信息
-     * @param comment 评论数据源码
-     */
-    private void commentDetail(Octopus octopus, Element comment) {
-        String href = comment.getElementsByTag("a").first().attr("href");
-        Document commentDetail = octopus.connect(href).getDocument();
-        if (commentDetail != null) {
-            String text = commentDetail.getElementsByClass("review-content").first().text();
-            log.info("text = " + text);
-            String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
-            log.info("attr = " + attr);
-        } else {
-            log.info(href + " is error!!");
-        }
-        log.info("---------------------------------------------------------");
     }
 
     /**

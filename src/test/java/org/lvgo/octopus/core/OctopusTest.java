@@ -1,20 +1,21 @@
 package org.lvgo.octopus.core;
 
-import org.junit.Test;
 
-public class OctopusTest {
+import org.junit.jupiter.api.Test;
+
+class OctopusTest {
 
     @Test
-    public void copy() {
+    void copy() {
         Octopus.init().url("http://www.baidu.com");
     }
 
     @Test
-    public void url() {
+    void url() {
         Octopus.init().url("http://www.baidu.com");
     }
 
     @Test
-    public void getUrl() {
+    void getUrl() {
     }
 }

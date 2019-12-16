@@ -18,7 +18,7 @@ class DoubanExtractorTest {
                 .extractor(new DoubanExtractor())
                 .pageDown(true)
                 .pageSize(20)
-                .threads(10)
+                .threads(1)
                 .start();
     }
 }

@@ -7,12 +7,10 @@ octopus > pa!! pa!!
 
 # 八爪鱼 砰砰
 
-## 架构
+## 整体架构
 
 
-### 数据提取层
-
-数据提取分为两部分, 一部分为Http数据连接配置``Octopus`` , 另一部分为数据解析提取``Extractor``
+### 数据提取
 
 #### Octopus
 
@@ -30,21 +28,52 @@ h. 设置代理
 ```
 
 
+### 数据解析
+
+
 #### Extractor
 
-数据解析为用户自定义内容, 需实现接口该支接口目前有两个方法
+数据解析为用户自定义内容, 需实现接口该支接口
 
-1. OctopusPage getPageInfo(Octopus octopus); // 分页数据处理
+```java
+interface Extractor {
+    /**
+    * 分页信息
+    * 
+    * @param octopus 
+    * @return 
+    */
+    OctopusPage getPageInfo(Octopus octopus);
+    
+    /**
+    * 数据解析
+    * 
+    * @param octopus
+    */
+    void extract(Octopus octopus);
+    
+    /**
+    * 实现自定义内容解析
+    * 
+    * @param octopus
+    * @param element
+    */
+    void elementHandle(Octopus octopus, Element element);
+    
+    /**
+    * 默认提供并发处理解析方法
+    * 
+    * @param octopus
+    * @param elements
+    */
+    default void concurrentHandle(Octopus octopus, Elements elements);
+}
+```
 
-2. void extract(Octopus octopus); // 解析页面
 
-
-#### 数据监控
-### 数据解析层
-
-### 数据处理层
-### 数据存储层
-### 数据展示层
+### 数据处理
+### 数据存储
+### 数据展示
 
 
 ----
