@@ -31,6 +31,7 @@ public class Octopus extends OctopusBeans {
      * 最大尝试次数
      */
     private static final int MAX_ATTEMPTS = 3;
+    private static final long serialVersionUID = -6080428937930565035L;
     /**
      * 爬取数据地址, 外部提供给抓取器的地址
      */
@@ -367,12 +368,10 @@ public class Octopus extends OctopusBeans {
         }
 
         /*
-            通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
-            因为启动多线程时会增加一次页数请求处理 extractor.getPageInfo(this);
-            这样将会减少资源浪费
+        通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
+        因为启动多线程时会增加一次页数请求处理 extractor.getPageInfo(this);
+        这样将会减少资源浪费
          */
-
-        // 是否翻页, 默认不翻页
         if (!pageDown || page == 1) {
             // 解析数据
             extractor.extract(Octopus.this);
@@ -389,7 +388,6 @@ public class Octopus extends OctopusBeans {
                 }
             }.sync(true).execute(threadSize > 1 ? threadSize : 1);
         }
-        log.info("抓取结束, 共计{}条记录", page * pageSize);
         this.document.remove();
     }
 
