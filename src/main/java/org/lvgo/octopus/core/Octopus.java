@@ -4,13 +4,14 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
-import org.lvgo.octopus.bean.BaseBean;
-import org.lvgo.octopus.bean.Data;
+import org.lvgo.octopus.bean.OctopusBeans;
+import org.lvgo.octopus.bean.OctopusData;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 10:41
  */
-public class Octopus extends BaseBean {
+public class Octopus extends OctopusBeans {
     /**
      * 最大尝试次数
      */
@@ -41,7 +42,7 @@ public class Octopus extends BaseBean {
     /**
      * 文档数据
      */
-    private Document document;
+    private ThreadLocal<Document> document;
     /**
      * 请求头
      */
@@ -57,7 +58,7 @@ public class Octopus extends BaseBean {
     /**
      * 提取的数据
      */
-    private Data data;
+    private OctopusData octopusData;
     /**
      * 翻页抓取
      */
@@ -82,11 +83,10 @@ public class Octopus extends BaseBean {
      * 请求超时时间
      */
     private int timeoutMilliseconds = 30 * 1000;
-    private OctopusProxy octopusProxy;
     /**
-     * 存储尝试记录
+     * 章鱼代理
      */
-    private Map<String, Integer> attemptMap = new HashMap<>(this.threadSize);
+    private OctopusProxy octopusProxy;
 
     /**
      * 当前线程尝试次数
@@ -96,6 +96,9 @@ public class Octopus extends BaseBean {
     private Octopus() {
         this.success = true;
         this.headers = new HashMap<>(5);
+        this.document = new ThreadLocal<>();
+        this.octopusData = new OctopusData();
+        this.octopusData.setDataList(new ArrayList<>(page * pageSize));
     }
 
     /**
@@ -133,12 +136,12 @@ public class Octopus extends BaseBean {
         this.concurrent = concurrent;
     }
 
-    public Data getData() {
-        return data;
+    public OctopusData getOctopusData() {
+        return octopusData;
     }
 
-    public void setData(Data data) {
-        this.data = data;
+    public void setOctopusData(OctopusData octopusData) {
+        this.octopusData = octopusData;
     }
 
     public int getPage() {
@@ -194,11 +197,7 @@ public class Octopus extends BaseBean {
     }
 
     public Document getDocument() {
-        return document;
-    }
-
-    public void setDocument(Document document) {
-        this.document = document;
+        return this.document.get();
     }
 
     public Map<String, String> getHeaders() {
@@ -251,8 +250,6 @@ public class Octopus extends BaseBean {
     public Octopus connect(String url) {
         Integer value = attemptCount.get() == null ? 1 : attemptCount.get();
 
-        attemptMap.put(Thread.currentThread().getName(), value);
-
         String realUrl = url == null ? this.url : url;
         // org.jsoup.Connection
         Connection connect = Jsoup.connect(realUrl);
@@ -284,9 +281,9 @@ public class Octopus extends BaseBean {
         // 发送请求
         try {
             if (get) {
-                this.document = connect.get();
+                this.document.set(connect.get());
             } else {
-                this.document = connect.post();
+                this.document.set(connect.post());
             }
             this.success = true;
         } catch (IOException e) {
@@ -294,17 +291,19 @@ public class Octopus extends BaseBean {
             this.success = false;
             this.document = null;
 
-            log.error("请求失败, {}", e);
+            log.error("请求失败, {}", e.getMessage(), e);
             if (randomProxy != null) {
                 this.octopusProxy.remove(randomProxy);
             }
-            attemptCount.set(value + 1);
-            if (value < MAX_ATTEMPTS) {
+            if (value <= MAX_ATTEMPTS) {
+                log.error("尝试第{}次请求....", value);
+                attemptCount.set(value + 1);
                 connect(url);
+            } else {
+                log.error("尝试{}次请求失败 .. 放弃处理", MAX_ATTEMPTS);
             }
-        } finally {
-            log.info("请求地址 : {} , 响应结果 : {}", realUrl, this.success ? "成功" : "失败");
         }
+        attemptCount.remove();
         return this;
     }
 
@@ -362,7 +361,7 @@ public class Octopus extends BaseBean {
         // 连接获取上下文信息
         connect(null);
 
-        if (this.document == null) {
+        if (!this.success) {
             log.error("未获取到任何内容信息, 请分析!!");
             return;
         }
@@ -372,21 +371,22 @@ public class Octopus extends BaseBean {
         if (!pageDown) {
             // 解析数据
             extractor.extract(Octopus.this);
-            return;
+        } else {
+            OctopusPage octopusPage = extractor.getPageInfo(this);
+
+            // 线程数大于 0 时, 启动多线程处理
+            new TaskHandler<String>(octopusPage.getUrls()) {
+                @Override
+                public void run(String url) {
+                    // 建立连接
+                    connect(url);
+                    // 解析数据
+                    extractor.extract(Octopus.this);
+                }
+            }.sync(true).execute(threadSize > 1 ? threadSize : 1);
         }
-
-        OctopusPage octopusPage = extractor.getPageInfo(this);
-
-        // 线程数大于 0 时, 启动多线程处理
-        new TaskHandler<String>(octopusPage.getUrls()) {
-            @Override
-            public void run(String url) {
-                // 建立连接
-                connect(url);
-                // 解析数据
-                extractor.extract(Octopus.this);
-            }
-        }.sync(true).execute(threadSize > 1 ? threadSize : 1);
+        log.info("抓取结束, 共计{}条记录", page * pageSize);
+        this.document.remove();
     }
 
 
@@ -409,5 +409,27 @@ public class Octopus extends BaseBean {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Octopus{");
+        sb.append("url='").append(url).append('\'');
+        sb.append(", success=").append(success);
+        sb.append(", document=").append(document);
+        sb.append(", headers=").append(headers);
+        sb.append(", get=").append(get);
+        sb.append(", extractor=").append(extractor);
+        sb.append(", octopusData=").append(octopusData);
+        sb.append(", pageDown=").append(pageDown);
+        sb.append(", page=").append(page);
+        sb.append(", pageSize=").append(pageSize);
+        sb.append(", threadSize=").append(threadSize);
+        sb.append(", concurrent=").append(concurrent);
+        sb.append(", timeoutMilliseconds=").append(timeoutMilliseconds);
+        sb.append(", octopusProxy=").append(octopusProxy);
+        sb.append(", attemptCount=").append(attemptCount);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -1,7 +1,6 @@
 package org.lvgo.example;
 
 import org.junit.jupiter.api.Test;
-import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.octopus.core.Octopus;
 
 class DoubanExtractorTest {
@@ -14,14 +13,13 @@ class DoubanExtractorTest {
         // 机器人总动员
         String movieId = "2131459";
         String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
-        Octopus.init()
-                .url(url)
-                .get()
-                .extractor(new DoubanExtractor())
-                .proxy(new MyIpProxy())
-                .timeOut(2000)
-                .pageSize(20)
-                .threads(2)
+
+        Octopus octopus = Octopus.init();
+
+        octopus.url(url).get().extractor(new DoubanExtractor())
+                .pageDown(true).page(3).pageSize(20)
                 .start();
+
+        System.out.println(octopus.getOctopusData());
     }
 }

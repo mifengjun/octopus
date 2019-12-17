@@ -13,7 +13,7 @@
 
 #### 2018-03 初尝禁果
 
-在网上照着抄了一个爬取图片的程序 https://gitee.com/lvgo/data-down 很显然, 这使我很开心
+在网上照着抄了一个爬取图片的程序 https://gitee.com/lvgo/octopusData-down 很显然, 这使我很开心
 
 ---
 

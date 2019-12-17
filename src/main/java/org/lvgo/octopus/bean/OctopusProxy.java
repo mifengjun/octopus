@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  * @date 2019/12/12 15:40
  */
-public class OctopusProxy extends BaseBean {
+public class OctopusProxy extends OctopusBeans {
 
     /**
      * 章鱼锁

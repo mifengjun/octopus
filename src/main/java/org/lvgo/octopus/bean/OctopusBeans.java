@@ -12,7 +12,9 @@ import java.io.Serializable;
  * @version 1.0
  * @date 2019/12/12 14:12
  */
-public abstract class BaseBean implements Serializable {
+public abstract class OctopusBeans implements Serializable {
 
-    protected static final Logger log = LoggerFactory.getLogger(BaseBean.class);
+    protected static final Logger log = LoggerFactory.getLogger(OctopusBeans.class);
+
+
 }

@@ -1,5 +1,8 @@
 package org.lvgo.octopus.bean;
 
+import com.alibaba.fastjson.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +13,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/11/4 13:47
  */
-public class Data extends BaseBean {
+public class OctopusData extends OctopusBeans {
 
     private String tableName;
     private List<Map<String, Object>> dataList;
@@ -29,5 +32,11 @@ public class Data extends BaseBean {
 
     public void setDataList(List<Map<String, Object>> dataList) {
         this.dataList = dataList;
+    }
+
+
+    @Override
+    public String toString() {
+        return JSONObject.toJSONString(this);
     }
 }

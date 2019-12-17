@@ -3,12 +3,14 @@ package org.lvgo.example;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lvgo.octopus.bean.BaseBean;
+import org.lvgo.octopus.bean.OctopusBeans;
+import org.lvgo.octopus.bean.OctopusData;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +21,13 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/11 14:15
  */
-public class DoubanExtractor extends BaseBean implements Extractor {
+public class DoubanExtractor extends OctopusBeans implements Extractor {
 
     @Override
     public void extract(Octopus octopus) {
-        ArrayList<Map<String, Object>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
+            OctopusData octopusData = octopus.getOctopusData();
+            octopusData.setTableName("豆瓣评论");
             Document document = octopus.getDocument();
             // 获取评论上下文
             Elements h2 = document.getElementsByTag("H2");
@@ -35,7 +38,7 @@ public class DoubanExtractor extends BaseBean implements Extractor {
             concurrentHandle(octopus, h2);
 
         } else {
-            //TODO:失败情况处理
+            log.error("请求失败,{}", octopus);
         }
     }
 
@@ -47,17 +50,27 @@ public class DoubanExtractor extends BaseBean implements Extractor {
      */
     @Override
     public void elementHandle(Octopus octopus, Element element) {
+        OctopusData octopusData = octopus.getOctopusData();
+        List<Map<String, Object>> dataList = octopusData.getDataList();
+        Map<String, Object> data = new HashMap<String, Object>(2);
         String href = element.getElementsByTag("a").first().attr("href");
         Document commentDetail = octopus.connect(href).getDocument();
         if (commentDetail != null) {
             String text = commentDetail.getElementsByClass("review-content").first().text();
-            log.info("text = " + text);
+            data.put("comment", text);
             String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
-            log.info("attr = " + attr);
+
+            String[] worth = attr.split("·");
+
+            String use = worth[0].trim().substring(2);
+            String unuse = worth[1].trim().substring(2);
+
+            data.put("use", use);
+            data.put("unuse", unuse);
+            dataList.add(data);
         } else {
-            log.info(href + " is error!!");
+            log.error(href + " is error!!");
         }
-        log.info("---------------------------------------------------------");
     }
 
     /**

@@ -5,8 +5,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lvgo.octopus.bean.BaseBean;
-import org.lvgo.octopus.bean.Data;
+import org.lvgo.octopus.bean.OctopusBeans;
+import org.lvgo.octopus.bean.OctopusData;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
@@ -25,7 +25,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 16:48
  */
-public class WeiBoExtractor extends BaseBean implements Extractor {
+public class WeiBoExtractor extends OctopusBeans implements Extractor {
 
     @Override
     public OctopusPage getPageInfo(Octopus octopus) {
@@ -34,7 +34,7 @@ public class WeiBoExtractor extends BaseBean implements Extractor {
 
     @Override
     public void extract(Octopus octopus) {
-        Data data = new Data();
+        OctopusData octopusData = new OctopusData();
         ArrayList<Map<String, Object>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
             Document document = octopus.getDocument();
@@ -60,12 +60,12 @@ public class WeiBoExtractor extends BaseBean implements Extractor {
             }.sync(true).execute(octopus.getThreadSize() > 1 ? octopus.getThreadSize() : 1);
 
 
-            data.setDataList(datas);
+            octopusData.setDataList(datas);
 
         } else {
         }
 
-        log.info(Arrays.toString(data.getDataList().toArray()));
+        log.info(Arrays.toString(octopusData.getDataList().toArray()));
     }
 
     @Override
