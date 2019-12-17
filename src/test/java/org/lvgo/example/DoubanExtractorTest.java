@@ -16,8 +16,7 @@ class DoubanExtractorTest {
 
         Octopus octopus = Octopus.init();
 
-        octopus.url(url).get().extractor(new DoubanExtractor())
-                .pageDown(true).page(3).pageSize(20)
+        octopus.url(url).get().extractor(new DoubanExtractor()).pageSize(20)
                 .start();
 
         System.out.println(octopus.getOctopusData());

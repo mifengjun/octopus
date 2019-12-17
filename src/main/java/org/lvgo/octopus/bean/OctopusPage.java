@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class OctopusPage extends OctopusBeans {
 
+    private static final long serialVersionUID = 3297478597635124188L;
     /**
      * 总页数
      */

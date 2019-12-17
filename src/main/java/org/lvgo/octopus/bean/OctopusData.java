@@ -1,8 +1,5 @@
 package org.lvgo.octopus.bean;
 
-import com.alibaba.fastjson.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +12,15 @@ import java.util.Map;
  */
 public class OctopusData extends OctopusBeans {
 
+    private static final long serialVersionUID = -7446757364517305651L;
+    /**
+     * 数据标题
+     */
     private String tableName;
+
+    /**
+     * 数据项
+     */
     private List<Map<String, Object>> dataList;
 
     public String getTableName() {
@@ -34,9 +39,4 @@ public class OctopusData extends OctopusBeans {
         this.dataList = dataList;
     }
 
-
-    @Override
-    public String toString() {
-        return JSONObject.toJSONString(this);
-    }
 }

@@ -56,17 +56,32 @@ public class DoubanExtractor extends OctopusBeans implements Extractor {
         String href = element.getElementsByTag("a").first().attr("href");
         Document commentDetail = octopus.connect(href).getDocument();
         if (commentDetail != null) {
+            Element header = commentDetail.getElementsByTag("header").first().getElementsByTag("span").get(1);
+            String title = header.attr("title");
+            int star = 0;
+            if ("力荐".equals(title)) {
+                star = 5;
+            } else if ("推荐".equals(title)) {
+                star = 4;
+            } else if ("还行".equals(title)) {
+                star = 3;
+            } else if ("较差".equals(title)) {
+                star = 2;
+            } else if ("很差".equals(title)) {
+                star = 1;
+            }
             String text = commentDetail.getElementsByClass("review-content").first().text();
             data.put("comment", text);
             String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
 
             String[] worth = attr.split("·");
 
-            String use = worth[0].trim().substring(2);
-            String unuse = worth[1].trim().substring(2);
+            String valuable = worth[0].trim().substring(2);
+            String worthless = worth[1].trim().substring(2);
 
-            data.put("use", use);
-            data.put("unuse", unuse);
+            data.put("valuable", valuable);
+            data.put("worthless", worthless);
+            data.put("star", star);
             dataList.add(data);
         } else {
             log.error(href + " is error!!");

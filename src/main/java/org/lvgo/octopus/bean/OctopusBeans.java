@@ -1,5 +1,6 @@
 package org.lvgo.octopus.bean;
 
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,12 @@ import java.io.Serializable;
  */
 public abstract class OctopusBeans implements Serializable {
 
-    protected static final Logger log = LoggerFactory.getLogger(OctopusBeans.class);
+    private static final long serialVersionUID = 7409285595685160701L;
+    protected static Logger log = LoggerFactory.getLogger(OctopusBeans.class);
 
 
+    @Override
+    public String toString() {
+        return JSONObject.toJSONString(this);
+    }
 }

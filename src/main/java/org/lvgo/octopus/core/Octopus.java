@@ -366,15 +366,19 @@ public class Octopus extends OctopusBeans {
             return;
         }
 
-        // 获取总页数
+        /*
+            通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
+            因为启动多线程时会增加一次页数请求处理 extractor.getPageInfo(this);
+            这样将会减少资源浪费
+         */
+
         // 是否翻页, 默认不翻页
-        if (!pageDown) {
+        if (!pageDown || page == 1) {
             // 解析数据
             extractor.extract(Octopus.this);
         } else {
+            // 开启多线程处理分页数据
             OctopusPage octopusPage = extractor.getPageInfo(this);
-
-            // 线程数大于 0 时, 启动多线程处理
             new TaskHandler<String>(octopusPage.getUrls()) {
                 @Override
                 public void run(String url) {
@@ -411,25 +415,4 @@ public class Octopus extends OctopusBeans {
         this.url = url;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Octopus{");
-        sb.append("url='").append(url).append('\'');
-        sb.append(", success=").append(success);
-        sb.append(", document=").append(document);
-        sb.append(", headers=").append(headers);
-        sb.append(", get=").append(get);
-        sb.append(", extractor=").append(extractor);
-        sb.append(", octopusData=").append(octopusData);
-        sb.append(", pageDown=").append(pageDown);
-        sb.append(", page=").append(page);
-        sb.append(", pageSize=").append(pageSize);
-        sb.append(", threadSize=").append(threadSize);
-        sb.append(", concurrent=").append(concurrent);
-        sb.append(", timeoutMilliseconds=").append(timeoutMilliseconds);
-        sb.append(", octopusProxy=").append(octopusProxy);
-        sb.append(", attemptCount=").append(attemptCount);
-        sb.append('}');
-        return sb.toString();
-    }
 }

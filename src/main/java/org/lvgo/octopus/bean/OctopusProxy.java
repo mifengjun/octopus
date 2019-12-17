@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class OctopusProxy extends OctopusBeans {
 
+    private static final long serialVersionUID = 7028017492503703485L;
     /**
      * 章鱼锁
      */
@@ -84,7 +85,6 @@ public class OctopusProxy extends OctopusBeans {
     public OctopusProxy randomProxy() {
         int index = Math.toIntExact(Math.round(Math.random() * (octopusProxies.size() - 1)));
         OctopusProxy octopusProxy = octopusProxies.get(index);
-        // TODO: 当代理IP发生请求失败时, 从代理列表中移除
         log.info("当前代理IP剩余 : " + octopusProxies.size() + "个");
         return octopusProxy;
     }
