@@ -74,7 +74,7 @@ public class WeiBoExtractor extends BaseBean implements Extractor {
     }
 
     private void getWbDetail(ArrayList<Map<String, Object>> datas, Element detail) {
-        HashMap<String, Object> wbdetail = new HashMap<>();
+        HashMap<String, Object> wbdetail = new HashMap<>(2);
         Elements content = detail.getElementsByClass("WB_text W_f14");
         wbdetail.put("content", content.text());
 

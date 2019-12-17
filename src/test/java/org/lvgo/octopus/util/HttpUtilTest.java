@@ -8,7 +8,10 @@ class HttpUtilTest {
 
     @Test
     void get() {
-        String s = HttpUtil.get("http://www.89ip.cn/tqdl.html?api=1&num=30&port=&address=&isp=");
+
+        String url = "http://www.89ip.cn/index.html";
+
+        String s = HttpUtil.get(url);
         System.out.println("s = " + s);
     }
 }

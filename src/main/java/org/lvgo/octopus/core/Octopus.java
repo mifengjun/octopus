@@ -10,6 +10,7 @@ import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,10 @@ import java.util.Map;
  */
 public class Octopus extends BaseBean {
     /**
+     * 最大尝试次数
+     */
+    private static final int MAX_ATTEMPTS = 3;
+    /**
      * 爬取数据地址, 外部提供给抓取器的地址
      */
     private String url;
@@ -41,12 +46,10 @@ public class Octopus extends BaseBean {
      * 请求头
      */
     private Map<String, String> headers;
-
     /**
      * 是否为 get 请求, 否则为 false
      */
     private boolean get = true;
-
     /**
      * 数据提取接口
      */
@@ -75,12 +78,20 @@ public class Octopus extends BaseBean {
      * 是否开启多线程
      */
     private boolean concurrent;
-
     /**
      * 请求超时时间
      */
     private int timeoutMilliseconds = 30 * 1000;
     private OctopusProxy octopusProxy;
+    /**
+     * 存储尝试记录
+     */
+    private Map<String, Integer> attemptMap = new HashMap<>(this.threadSize);
+
+    /**
+     * 当前线程尝试次数
+     */
+    private ThreadLocal<Integer> attemptCount = new ThreadLocal<>();
 
     private Octopus() {
         this.success = true;
@@ -226,10 +237,11 @@ public class Octopus extends BaseBean {
         return this;
     }
 
-    public Octopus proxy(OctopusProxy octopusProxy) {
-        this.octopusProxy = octopusProxy;
+    public Octopus proxy(IpProxy ipProxy) {
+        octopusProxy = OctopusProxy.getInstance(ipProxy);
         return this;
     }
+
 
     /**
      * 连接获取页面数据, 通过控制url参数非空来决定数据地址
@@ -237,14 +249,19 @@ public class Octopus extends BaseBean {
      * 统一入口, 所有请求连接通过此方法连接
      */
     public Octopus connect(String url) {
+        Integer value = attemptCount.get() == null ? 1 : attemptCount.get();
+
+        attemptMap.put(Thread.currentThread().getName(), value);
+
         String realUrl = url == null ? this.url : url;
         // org.jsoup.Connection
         Connection connect = Jsoup.connect(realUrl);
 
         // 获取随机代理
-        OctopusProxy octopusProxy = this.octopusProxy.randomProxy();
-        if (this.octopusProxy != null) {
+        OctopusProxy randomProxy = null;
 
+        if (this.octopusProxy != null) {
+            randomProxy = this.octopusProxy.randomProxy();
             if (this.octopusProxy.isEmpty()) {
                 log.error("无可用代理IP");
                 this.success = false;
@@ -252,16 +269,19 @@ public class Octopus extends BaseBean {
                 return this;
             }
             // 代理IP
-            connect.proxy(octopusProxy.getHost(), octopusProxy.getPort());
-            log.info("使用代理ip:{},请求地址:{}", octopusProxy, realUrl);
+            connect.proxy(randomProxy.getHost(), randomProxy.getPort());
+            log.info("使用代理ip:{},请求地址:{}", randomProxy, realUrl);
         }
 
         if (!headers.isEmpty()) {
             // 请求头
             connect.headers(headers);
         }
+
         // 请求超时时间
         connect.timeout(timeoutMilliseconds);
+
+        // 发送请求
         try {
             if (get) {
                 this.document = connect.get();
@@ -269,12 +289,21 @@ public class Octopus extends BaseBean {
                 this.document = connect.post();
             }
             this.success = true;
-        } catch (Exception e) {
+        } catch (IOException e) {
+
             this.success = false;
             this.document = null;
-            log.error("请求失败, {}", e.getMessage());
-            this.octopusProxy.remove(octopusProxy);
-            connect(url);
+
+            log.error("请求失败, {}", e);
+            if (randomProxy != null) {
+                this.octopusProxy.remove(randomProxy);
+            }
+            attemptCount.set(value + 1);
+            if (value < MAX_ATTEMPTS) {
+                connect(url);
+            }
+        } finally {
+            log.info("请求地址 : {} , 响应结果 : {}", realUrl, this.success ? "成功" : "失败");
         }
         return this;
     }

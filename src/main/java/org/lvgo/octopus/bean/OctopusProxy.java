@@ -1,5 +1,7 @@
 package org.lvgo.octopus.bean;
 
+import org.lvgo.octopus.core.IpProxy;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +18,7 @@ public class OctopusProxy extends BaseBean {
     /**
      * 章鱼锁
      */
-    private static final ReentrantLock octopusLock = new ReentrantLock();
+    private static ReentrantLock octopusLock = new ReentrantLock();
     /**
      * 章鱼代理
      */
@@ -48,21 +50,22 @@ public class OctopusProxy extends BaseBean {
      *
      * @return 八爪鱼代理
      */
-    public static OctopusProxy getInstance() {
+    public static OctopusProxy getInstance(IpProxy ipProxy) {
+
         if (octopusProxy == null) {
             octopusLock.lock();
             try {
                 if (octopusProxy == null) {
-                    return new OctopusProxy();
-                } else {
-                    return octopusProxy;
+                    octopusProxy = new OctopusProxy();
                 }
             } finally {
                 octopusLock.unlock();
             }
-        } else {
-            return octopusProxy;
         }
+
+
+        ipProxy.init(octopusProxy);
+        return octopusProxy;
     }
 
     public boolean isEmpty() {
@@ -77,10 +80,10 @@ public class OctopusProxy extends BaseBean {
         octopusProxies.add(new OctopusProxy(host, port));
     }
 
+
     public OctopusProxy randomProxy() {
         int index = Math.toIntExact(Math.round(Math.random() * (octopusProxies.size() - 1)));
         OctopusProxy octopusProxy = octopusProxies.get(index);
-//        octopusProxies.remove(octopusProxy);
         // TODO: 当代理IP发生请求失败时, 从代理列表中移除
         log.info("当前代理IP剩余 : " + octopusProxies.size() + "个");
         return octopusProxy;
