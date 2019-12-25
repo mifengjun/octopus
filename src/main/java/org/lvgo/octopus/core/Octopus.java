@@ -198,7 +198,9 @@ public class Octopus extends OctopusBeans {
     }
 
     public Document getDocument() {
-        return this.document.get();
+        Document document = this.document.get();
+        this.document.remove();
+        return document;
     }
 
     public Map<String, String> getHeaders() {
@@ -388,7 +390,6 @@ public class Octopus extends OctopusBeans {
                 }
             }.sync(true).execute(threadSize > 1 ? threadSize : 1);
         }
-        this.document.remove();
     }
 
 

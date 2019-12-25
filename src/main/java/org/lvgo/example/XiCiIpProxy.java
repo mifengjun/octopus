@@ -13,17 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * //TODO 描述此类作用
+ * 西刺免费代理
  *
  * @author lvgorice@gmail.com
  * @version 1.0
  * @date 2019/12/17 9:52
  */
-public class MyIpProxy implements IpProxy {
+public class XiCiIpProxy implements IpProxy {
     @Override
     public void init(OctopusProxy octopusProxy) {
         String url = "https://www.xicidaili.com/nn";
-        Octopus.init().url(url).pageDown(true).pageSize(100).get().extractor(new Extractor() {
+        Octopus.init().url(url).get().extractor(new Extractor() {
             @Override
             public OctopusPage getPageInfo(Octopus octopus) {
                 Document document = octopus.getDocument();
@@ -69,7 +69,7 @@ public class MyIpProxy implements IpProxy {
                 if (td.isEmpty()) {
                     return;
                 }
-                System.out.println(td.get(1).text() + " : " + td.get(2).text());
+                octopusProxy.add(td.get(1).text(), Integer.parseInt(td.get(2).text()));
             }
         }).start();
     }

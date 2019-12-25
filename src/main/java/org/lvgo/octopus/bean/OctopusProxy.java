@@ -4,7 +4,6 @@ import org.lvgo.octopus.core.IpProxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 八爪鱼之IP代理
@@ -17,13 +16,9 @@ public class OctopusProxy extends OctopusBeans {
 
     private static final long serialVersionUID = 7028017492503703485L;
     /**
-     * 章鱼锁
-     */
-    private static ReentrantLock octopusLock = new ReentrantLock();
-    /**
      * 章鱼代理
      */
-    private static OctopusProxy octopusProxy = new OctopusProxy();
+    private volatile static OctopusProxy octopusProxy;
     /**
      * 代理ip
      */
@@ -32,6 +27,11 @@ public class OctopusProxy extends OctopusBeans {
      * 代理端口
      */
     private int port;
+
+    public List<OctopusProxy> getOctopusProxies() {
+        return octopusProxies;
+    }
+
     /**
      * 代理IP列表
      */
@@ -47,23 +47,19 @@ public class OctopusProxy extends OctopusBeans {
     }
 
     /**
-     * 单例代理
+     * 单例代理  通过双重检查锁来创建单例对象
      *
      * @return 八爪鱼代理
      */
     public static OctopusProxy getInstance(IpProxy ipProxy) {
 
         if (octopusProxy == null) {
-            octopusLock.lock();
-            try {
+            synchronized (OctopusProxy.class) {
                 if (octopusProxy == null) {
                     octopusProxy = new OctopusProxy();
                 }
-            } finally {
-                octopusLock.unlock();
             }
         }
-
 
         ipProxy.init(octopusProxy);
         return octopusProxy;

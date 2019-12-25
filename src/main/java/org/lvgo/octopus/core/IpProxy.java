@@ -14,7 +14,7 @@ public interface IpProxy {
     /**
      * 初始化代理
      *
-     * @param octopusProxy
+     * @param octopusProxy 章鱼代理
      */
     void init(OctopusProxy octopusProxy);
 }
