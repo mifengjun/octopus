@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lvgo.weboctopus.doubanmovie.mapper.MovieMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.doubanmovie.bean.Movie">
+        <id column="id" property="id"/>
+        <result column="movie_name" property="movieName"/>
+        <result column="initial_release_date" property="initialReleaseDate"/>
+        <result column="movie_time" property="movieTime"/>
+        <result column="producer_country" property="producerCountry"/>
+        <result column="source" property="source"/>
+        <result column="source_name" property="sourceName"/>
+        <result column="data_time" property="dataTime"/>
+    </resultMap>
+
+</mapper>
