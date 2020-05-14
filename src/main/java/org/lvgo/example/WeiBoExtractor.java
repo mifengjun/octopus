@@ -13,7 +13,6 @@ import org.lvgo.octopus.util.RegexUtil;
 import org.lvgo.silent.TaskHandler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,12 +56,10 @@ public class WeiBoExtractor extends AbstractOctopusBean implements Extractor {
                 }
             }.sync(true).execute(octopus.getThreadSize() > 1 ? octopus.getThreadSize() : 1);
 
-            octopus.setDataList(datas);
 
         } else {
         }
 
-        log.info(Arrays.toString(octopus.getDataList().toArray()));
     }
 
     @Override

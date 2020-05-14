@@ -10,9 +10,7 @@ import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,11 +25,11 @@ import java.util.Map;
  * @date 2019/12/10 10:41
  */
 public class Octopus extends AbstractOctopusBean {
+    private static final long serialVersionUID = -6080428937930565035L;
     /**
      * 最大尝试次数
      */
     private static final int MAX_ATTEMPTS = 3;
-    private static final long serialVersionUID = -6080428937930565035L;
     /**
      * 爬取数据地址, 外部提供给抓取器的地址
      */
@@ -56,10 +54,6 @@ public class Octopus extends AbstractOctopusBean {
      * 数据提取接口
      */
     private Extractor extractor;
-    /**
-     * 提取的数据
-     */
-    private List<Map<String, String>> dataList;
     /**
      * 翻页抓取
      */
@@ -98,7 +92,6 @@ public class Octopus extends AbstractOctopusBean {
         this.success = true;
         this.headers = new HashMap<>(5);
         this.document = new ThreadLocal<>();
-        this.dataList = new ArrayList<>(page * pageSize);
     }
 
     /**
@@ -283,7 +276,7 @@ public class Octopus extends AbstractOctopusBean {
         } catch (IOException e) {
 
             this.success = false;
-            this.document = null;
+            document.remove();
 
             log.error("请求失败: {}", e.getMessage());
             if (randomProxy != null) {
@@ -344,7 +337,7 @@ public class Octopus extends AbstractOctopusBean {
         log.info("目标地址 :" + this.url);
         log.info("请求方式 :" + (this.get ? "GET" : "POST"));
         log.info("提取器 :" + this.extractor.getClass().getSimpleName());
-        log.info("分页 :" + (this.pageDown ? "是" : "否"));
+        log.info("翻页 :" + (this.pageDown ? "是" : "否"));
         if (this.pageDown) {
             log.info("分页数 :" + this.page);
             log.info("每页大小 :" + this.pageSize);
@@ -369,7 +362,7 @@ public class Octopus extends AbstractOctopusBean {
          */
         if (!pageDown || page == 1) {
             // 解析数据
-            extractor.extract(Octopus.this);
+            extractor.extract(this);
         } else {
             // 开启多线程处理分页数据
             OctopusPage octopusPage = extractor.getPageInfo(this);
@@ -395,23 +388,11 @@ public class Octopus extends AbstractOctopusBean {
         return threadSize;
     }
 
-    public void setThreadSize(int threadSize) {
-        this.threadSize = threadSize;
-    }
-
     public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public List<Map<String, String>> getDataList() {
-        return dataList;
-    }
-
-    public void setDataList(List<Map<String, String>> dataList) {
-        this.dataList = dataList;
     }
 }

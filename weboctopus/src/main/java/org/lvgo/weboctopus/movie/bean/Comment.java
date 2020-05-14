@@ -33,7 +33,7 @@ public class Comment implements Serializable {
     /**
      * 影片id
      */
-    private Long movieId;
+    private String movieId;
 
     /**
      * 评论人
@@ -48,7 +48,7 @@ public class Comment implements Serializable {
     /**
      * 评论日期
      */
-    private LocalDateTime commentDate;
+    private String commentDate;
 
     /**
      * 评论星级

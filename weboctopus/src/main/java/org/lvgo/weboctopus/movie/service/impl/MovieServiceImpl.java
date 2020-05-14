@@ -10,6 +10,8 @@ import org.lvgo.weboctopus.movie.mapper.MovieMapper;
 import org.lvgo.weboctopus.movie.service.IMovieService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 /**
  * <p>
  * 电影信息表 服务实现类
@@ -22,25 +24,30 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MovieServiceImpl extends ServiceImpl<MovieMapper, Movie> implements IMovieService {
 
+    @Resource
+    private DouBanExtractor douBanExtractor;
+
     @Override
     public void fetchData(String source) {
         if (GeneralConstant.SOURCE_DOU_BAN.equals(source)) {
 
-            String movieId = "30176393";
-
-            String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
-
-            Octopus octopus = Octopus.init();
-
-            octopus.url(url).extractor(new DouBanExtractor()).pageSize(20);
-
-            octopus.start();
-
-            log.info(octopus.getDataList().toString());
+            douBanMovie();
 
 
         } else {
             log.info("啥也没有");
         }
+    }
+
+    private void douBanMovie() {
+        String movieId = "30176393";
+
+        String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
+
+        Octopus octopus = Octopus.init();
+
+        octopus.url(url).extractor(douBanExtractor).pageDown(true).page(3).pageSize(20);
+
+        octopus.start();
     }
 }

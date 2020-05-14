@@ -7,11 +7,16 @@ import org.jsoup.select.Elements;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
+import org.lvgo.weboctopus.common.GeneralConstant;
+import org.lvgo.weboctopus.movie.bean.Comment;
+import org.lvgo.weboctopus.movie.mapper.CommentMapper;
+import org.lvgo.weboctopus.movie.mapper.MovieMapper;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 豆瓣解析器
@@ -21,20 +26,25 @@ import java.util.Map;
  * @date 2020/5/14 10:32
  */
 @Slf4j
+@Component
 public class DouBanExtractor implements Extractor {
 
+    @Resource
+    private MovieMapper movieMapper;
+    @Resource
+    private CommentMapper commentMapper;
 
     @Override
     public void extract(Octopus octopus) {
         if (octopus.isSuccess()) {
             Document document = octopus.getDocument();
             // 获取评论上下文
-            Elements h2 = document.getElementsByTag("H2");
-            if (h2.isEmpty()) {
+            Elements comment = document.getElementsByTag("H2");
+            if (comment.isEmpty()) {
                 return;
             }
             // 并发处理
-            concurrentHandle(octopus, h2);
+            concurrentHandle(octopus, comment);
 
         } else {
             log.error("请求失败,{}", octopus);
@@ -49,38 +59,41 @@ public class DouBanExtractor implements Extractor {
      */
     @Override
     public void elementHandle(Octopus octopus, Element element) {
-        List<Map<String, String>> dataList = octopus.getDataList();
-        Map<String, String> data = new HashMap<>(2);
+
+        Comment comment = new Comment();
+        comment.setDataTime(LocalDateTime.now());
+        comment.setSource(GeneralConstant.SOURCE_DOU_BAN);
+
         String href = element.getElementsByTag("a").first().attr("href");
         Document commentDetail = octopus.connect(href).getDocument();
         if (commentDetail != null) {
-            Element header = commentDetail.getElementsByTag("header").first().getElementsByTag("span").get(1);
-            String title = header.attr("title");
-            String star = "0";
-            if ("力荐".equals(title)) {
-                star = "5";
-            } else if ("推荐".equals(title)) {
-                star = "4";
-            } else if ("还行".equals(title)) {
-                star = "3";
-            } else if ("较差".equals(title)) {
-                star = "2";
-            } else if ("很差".equals(title)) {
-                star = "1";
-            }
+            Element header = commentDetail.getElementsByTag("header").first();
+
+            String commentPeople = header.getElementsByTag("a").get(0).attr("href");
+            comment.setCommentPeople(commentPeople);
+            String movie = header.getElementsByTag("a").get(1).attr("href");
+            movie = movie.substring(0, movie.length() - 1);
+            movie = movie.substring(movie.lastIndexOf("/") + 1);
+            comment.setMovieId(movie);
+
+            String star = header.getElementsByTag("span").get(2).text();
+            comment.setCommentRating(star);
+
+            Element commentTime = header.getElementsByTag("span").get(3);
+            comment.setCommentDate(commentTime.text());
+
             String text = commentDetail.getElementsByClass("review-content").first().text();
-            data.put("comment", text);
+            comment.setComment(text);
+
             String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
-
             String[] worth = attr.split("·");
-
             String valuable = worth[0].trim().substring(2);
             String worthless = worth[1].trim().substring(2);
 
-            data.put("valuable", valuable);
-            data.put("worthless", worthless);
-            data.put("star", star);
-            dataList.add(data);
+            comment.setValuable(Integer.valueOf(valuable));
+            comment.setWorthless(Integer.valueOf(worthless));
+
+            commentMapper.insert(comment);
         } else {
             log.error(href + " is error!!");
         }
@@ -144,4 +157,5 @@ public class DouBanExtractor implements Extractor {
         octopusPage.setUrls(urls);
         return octopusPage;
     }
+
 }
