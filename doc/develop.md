@@ -16,7 +16,7 @@
 - Graph Database support 图数据库
 - YAML 结构文本
 - Alibaba Java Coding Guidelines 阿里规约
-
+- Lombok 仁者见仁智者见智
 
 #### Xshell6
 

@@ -9,7 +9,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/12 11:41
  */
-public class OctopusPage extends OctopusBeans {
+public class OctopusPage extends AbstractOctopusBean {
 
     private static final long serialVersionUID = 3297478597635124188L;
     /**

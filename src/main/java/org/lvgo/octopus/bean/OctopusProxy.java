@@ -12,7 +12,7 @@ import java.util.List;
  * @version 1.0
  * @date 2019/12/12 15:40
  */
-public class OctopusProxy extends OctopusBeans {
+public class OctopusProxy extends AbstractOctopusBean {
 
     private static final long serialVersionUID = 7028017492503703485L;
     /**
@@ -95,10 +95,8 @@ public class OctopusProxy extends OctopusBeans {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OctopusProxy{");
-        sb.append("host='").append(host).append('\'');
-        sb.append(", port=").append(port);
-        sb.append('}');
-        return sb.toString();
+        return "OctopusProxy{" + "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
     }
 }

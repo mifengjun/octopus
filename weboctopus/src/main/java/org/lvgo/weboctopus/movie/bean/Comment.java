@@ -1,4 +1,4 @@
-package org.lvgo.weboctopus.doubanmovie.bean;
+package org.lvgo.weboctopus.movie.bean;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,59 +11,69 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- *
+ * 评论表
  * </p>
  *
  * @author lvgorice@gmail.com
- * @since 2020-05-13
+ * @since 2020-05-14
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class Movie implements Serializable {
+public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 影片id
+     * 评论id
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 影片名称
+     * 影片id
      */
-    private String movieName;
+    private Long movieId;
 
     /**
-     * 影片年份
+     * 评论人
      */
-    private String initialReleaseDate;
+    private String commentPeople;
 
     /**
-     * 影片时长
+     * 评论内容
      */
-    private Integer movieTime;
+    private String comment;
 
     /**
-     * 制片国家/地区
+     * 评论日期
      */
-    private String producerCountry;
+    private LocalDateTime commentDate;
 
     /**
-     * 影片来源
+     * 评论星级
+     */
+    private String commentRating;
+
+    /**
+     * 评论来源
      */
     private String source;
-
-    /**
-     * 影片来源
-     */
-    private String sourceName;
 
     /**
      * 数据时间
      */
     private LocalDateTime dataTime;
+
+    /**
+     * 点击有用数
+     */
+    private Integer valuable;
+
+    /**
+     * 点击没用数
+     */
+    private Integer worthless;
 
 
 }

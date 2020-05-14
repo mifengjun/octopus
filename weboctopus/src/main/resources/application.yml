@@ -1,19 +1,19 @@
-#========== server config =======
-server:
-  port: 8080
-  servlet:
-    context-path: /
 
-#=========== data source =========
+
 spring:
+  profiles:
+    active: dev
+  #=========== data source =========
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/octopus?characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=true&serverTimezone=UTC
-    username: root
-    password: 123456
+
 
 #==============mybatis config ==================================
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   typeAliasesPackage: org.lvgo.weboctopus.**.bean
+
+
+
+

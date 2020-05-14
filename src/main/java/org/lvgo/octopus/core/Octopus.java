@@ -4,8 +4,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
-import org.lvgo.octopus.bean.OctopusBeans;
-import org.lvgo.octopus.bean.OctopusData;
+import org.lvgo.octopus.bean.AbstractOctopusBean;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
@@ -13,6 +12,7 @@ import org.lvgo.silent.TaskHandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +26,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 10:41
  */
-public class Octopus extends OctopusBeans {
+public class Octopus extends AbstractOctopusBean {
     /**
      * 最大尝试次数
      */
@@ -59,7 +59,7 @@ public class Octopus extends OctopusBeans {
     /**
      * 提取的数据
      */
-    private OctopusData octopusData;
+    private List<Map<String, String>> dataList;
     /**
      * 翻页抓取
      */
@@ -98,8 +98,7 @@ public class Octopus extends OctopusBeans {
         this.success = true;
         this.headers = new HashMap<>(5);
         this.document = new ThreadLocal<>();
-        this.octopusData = new OctopusData();
-        this.octopusData.setDataList(new ArrayList<>(page * pageSize));
+        this.dataList = new ArrayList<>(page * pageSize);
     }
 
     /**
@@ -135,14 +134,6 @@ public class Octopus extends OctopusBeans {
 
     public void setConcurrent(boolean concurrent) {
         this.concurrent = concurrent;
-    }
-
-    public OctopusData getOctopusData() {
-        return octopusData;
-    }
-
-    public void setOctopusData(OctopusData octopusData) {
-        this.octopusData = octopusData;
     }
 
     public int getPage() {
@@ -294,7 +285,7 @@ public class Octopus extends OctopusBeans {
             this.success = false;
             this.document = null;
 
-            log.error("请求失败, {}", e.getMessage(), e);
+            log.error("请求失败: {}", e.getMessage());
             if (randomProxy != null) {
                 this.octopusProxy.remove(randomProxy);
             }
@@ -354,8 +345,10 @@ public class Octopus extends OctopusBeans {
         log.info("请求方式 :" + (this.get ? "GET" : "POST"));
         log.info("提取器 :" + this.extractor.getClass().getSimpleName());
         log.info("分页 :" + (this.pageDown ? "是" : "否"));
-        log.info("分页数 :" + this.page);
-        log.info("每页大小 :" + this.pageSize);
+        if (this.pageDown) {
+            log.info("分页数 :" + this.page);
+            log.info("每页大小 :" + this.pageSize);
+        }
         log.info("多线程 :" + (this.concurrent ? "是" : "否"));
         log.info("线程数 :" + this.threadSize);
         log.info("============================================");
@@ -414,4 +407,11 @@ public class Octopus extends OctopusBeans {
         this.url = url;
     }
 
+    public List<Map<String, String>> getDataList() {
+        return dataList;
+    }
+
+    public void setDataList(List<Map<String, String>> dataList) {
+        this.dataList = dataList;
+    }
 }

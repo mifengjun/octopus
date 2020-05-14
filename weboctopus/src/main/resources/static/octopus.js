@@ -1,4 +1,4 @@
-fetchDouBanData = function () {
+fetchDouBanData = function (source) {
     $.ajax({
         async: false,
         //请求方式
@@ -6,7 +6,7 @@ fetchDouBanData = function () {
         //请求地址
         url: "/movie/fetch",
         //数据，json字符串
-        data: {id: '1'},
+        data: {'source': source},
         //请求成功
         success: function (result) {
             alert(result);

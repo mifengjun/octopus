@@ -13,10 +13,10 @@ import java.io.Serializable;
  * @version 1.0
  * @date 2019/12/12 14:12
  */
-public abstract class OctopusBeans implements Serializable {
+public abstract class AbstractOctopusBean implements Serializable {
 
     private static final long serialVersionUID = 7409285595685160701L;
-    protected static Logger log = LoggerFactory.getLogger(OctopusBeans.class);
+    protected Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     @Override

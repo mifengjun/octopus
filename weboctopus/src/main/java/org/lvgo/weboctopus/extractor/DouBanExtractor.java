@@ -1,10 +1,9 @@
-package org.lvgo.example;
+package org.lvgo.weboctopus.extractor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lvgo.octopus.bean.OctopusBeans;
-import org.lvgo.octopus.bean.OctopusData;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
@@ -19,15 +18,15 @@ import java.util.Map;
  *
  * @author lvgorice@gmail.com
  * @version 1.0
- * @date 2019/12/11 14:15
+ * @date 2020/5/14 10:32
  */
-public class DoubanExtractor extends OctopusBeans implements Extractor {
+@Slf4j
+public class DouBanExtractor implements Extractor {
+
 
     @Override
     public void extract(Octopus octopus) {
         if (octopus.isSuccess()) {
-            OctopusData octopusData = octopus.getOctopusData();
-            octopusData.setTableName("豆瓣评论");
             Document document = octopus.getDocument();
             // 获取评论上下文
             Elements h2 = document.getElementsByTag("H2");
@@ -50,25 +49,24 @@ public class DoubanExtractor extends OctopusBeans implements Extractor {
      */
     @Override
     public void elementHandle(Octopus octopus, Element element) {
-        OctopusData octopusData = octopus.getOctopusData();
-        List<Map<String, Object>> dataList = octopusData.getDataList();
-        Map<String, Object> data = new HashMap<String, Object>(2);
+        List<Map<String, String>> dataList = octopus.getDataList();
+        Map<String, String> data = new HashMap<>(2);
         String href = element.getElementsByTag("a").first().attr("href");
         Document commentDetail = octopus.connect(href).getDocument();
         if (commentDetail != null) {
             Element header = commentDetail.getElementsByTag("header").first().getElementsByTag("span").get(1);
             String title = header.attr("title");
-            int star = 0;
+            String star = "0";
             if ("力荐".equals(title)) {
-                star = 5;
+                star = "5";
             } else if ("推荐".equals(title)) {
-                star = 4;
+                star = "4";
             } else if ("还行".equals(title)) {
-                star = 3;
+                star = "3";
             } else if ("较差".equals(title)) {
-                star = 2;
+                star = "2";
             } else if ("很差".equals(title)) {
-                star = 1;
+                star = "1";
             }
             String text = commentDetail.getElementsByClass("review-content").first().text();
             data.put("comment", text);
@@ -94,8 +92,6 @@ public class DoubanExtractor extends OctopusBeans implements Extractor {
      * @param document 上下文
      */
     private void getBaseInfo(Document document) {
-
-        // todo: 填到你想放的任何地方
 
         String title = document.getElementsByTag("title").text();
         log.info("title : " + title.substring(0, title.indexOf("(")));

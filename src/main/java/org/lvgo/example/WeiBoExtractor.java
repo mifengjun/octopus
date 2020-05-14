@@ -5,8 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lvgo.octopus.bean.OctopusBeans;
-import org.lvgo.octopus.bean.OctopusData;
+import org.lvgo.octopus.bean.AbstractOctopusBean;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.Extractor;
 import org.lvgo.octopus.core.Octopus;
@@ -25,7 +24,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 16:48
  */
-public class WeiBoExtractor extends OctopusBeans implements Extractor {
+public class WeiBoExtractor extends AbstractOctopusBean implements Extractor {
 
     @Override
     public OctopusPage getPageInfo(Octopus octopus) {
@@ -34,8 +33,7 @@ public class WeiBoExtractor extends OctopusBeans implements Extractor {
 
     @Override
     public void extract(Octopus octopus) {
-        OctopusData octopusData = new OctopusData();
-        ArrayList<Map<String, Object>> datas = new ArrayList<>();
+        ArrayList<Map<String, String>> datas = new ArrayList<>();
         if (octopus.isSuccess()) {
             Document document = octopus.getDocument();
             Elements scripts = document.getElementsByTag("script");
@@ -59,13 +57,12 @@ public class WeiBoExtractor extends OctopusBeans implements Extractor {
                 }
             }.sync(true).execute(octopus.getThreadSize() > 1 ? octopus.getThreadSize() : 1);
 
-
-            octopusData.setDataList(datas);
+            octopus.setDataList(datas);
 
         } else {
         }
 
-        log.info(Arrays.toString(octopusData.getDataList().toArray()));
+        log.info(Arrays.toString(octopus.getDataList().toArray()));
     }
 
     @Override
@@ -73,8 +70,8 @@ public class WeiBoExtractor extends OctopusBeans implements Extractor {
 
     }
 
-    private void getWbDetail(ArrayList<Map<String, Object>> datas, Element detail) {
-        HashMap<String, Object> wbdetail = new HashMap<>(2);
+    private void getWbDetail(ArrayList<Map<String, String>> datas, Element detail) {
+        HashMap<String, String> wbdetail = new HashMap<>(2);
         Elements content = detail.getElementsByClass("WB_text W_f14");
         wbdetail.put("content", content.text());
 
