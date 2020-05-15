@@ -355,11 +355,7 @@ public class Octopus extends AbstractOctopusBean {
             return;
         }
 
-        /*
-        通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
-        因为启动多线程时会增加一次页数请求处理 extractor.getPageInfo(this);
-        这样将会减少资源浪费
-         */
+        // 通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
         if (!pageDown || page == 1) {
             // 解析数据
             extractor.extract(this);
