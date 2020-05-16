@@ -43,10 +43,10 @@ public class XiCiIpProxy implements IpProxy {
                 // 组装分页地址
                 List<String> urls = new ArrayList<>();
                 // 将源地址补充到地址池
-                urls.add(octopus.getUrl());
+                urls.add(octopus.getBaseUrl());
                 // 通过分页大小获取分页数据
                 for (int i = 1; i < (page != 0 ? page : totalPage); i++) {
-                    String url = octopus.getUrl() + "/" + i;
+                    String url = octopus.getBaseUrl() + "/" + i;
                     urls.add(url);
                 }
 

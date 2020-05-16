@@ -31,9 +31,13 @@ public class Octopus extends AbstractOctopusBean {
      */
     private static final int MAX_ATTEMPTS = 3;
     /**
-     * 爬取数据地址, 外部提供给抓取器的地址
+     * 爬取数据地址, 处理地址
      */
-    private String url;
+    private String doUrl;
+    /**
+     * 爬取数据地址, 根目录
+     */
+    private String baseUrl;
     /**
      * 请求是否成功
      */
@@ -109,52 +113,28 @@ public class Octopus extends AbstractOctopusBean {
         return get;
     }
 
-    public void setGet(boolean get) {
-        this.get = get;
-    }
-
     public Extractor getExtractor() {
         return extractor;
-    }
-
-    public void setExtractor(Extractor extractor) {
-        this.extractor = extractor;
     }
 
     public boolean isConcurrent() {
         return concurrent;
     }
 
-    public void setConcurrent(boolean concurrent) {
-        this.concurrent = concurrent;
-    }
-
     public int getPage() {
         return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
     }
 
     public int getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
     public boolean isPageDown() {
         return pageDown;
     }
 
-    public void setPageDown(boolean pageDown) {
-        this.pageDown = pageDown;
-    }
-
     public Octopus url(String url) {
-        this.url = url;
+        this.baseUrl = url;
         return this;
     }
 
@@ -177,10 +157,6 @@ public class Octopus extends AbstractOctopusBean {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
     public Document getDocument() {
         Document document = this.document.get();
         this.document.remove();
@@ -189,10 +165,6 @@ public class Octopus extends AbstractOctopusBean {
 
     public Map<String, String> getHeaders() {
         return headers;
-    }
-
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
     }
 
     /**
@@ -235,11 +207,14 @@ public class Octopus extends AbstractOctopusBean {
      * 统一入口, 所有请求连接通过此方法连接
      */
     public Octopus connect(String url) {
+
         Integer value = attemptCount.get() == null ? 1 : attemptCount.get();
 
-        String realUrl = url == null ? this.url : url;
+        String realUrl = url == null ? this.baseUrl : url;
+        // 将实际处理的地址更新到 doUrl
+        this.doUrl = realUrl;
         // org.jsoup.Connection
-        Connection connect = Jsoup.connect(realUrl);
+        Connection connect = Jsoup.connect(realUrl).ignoreContentType(true);
 
         // 获取随机代理
         OctopusProxy randomProxy = null;
@@ -247,14 +222,14 @@ public class Octopus extends AbstractOctopusBean {
         if (this.octopusProxy != null) {
             randomProxy = this.octopusProxy.randomProxy();
             if (this.octopusProxy.isEmpty()) {
-                log.error("无可用代理IP");
+                log.error("无可用代理IP!!");
                 this.success = false;
                 this.document = null;
                 return this;
             }
             // 代理IP
             connect.proxy(randomProxy.getHost(), randomProxy.getPort());
-            log.info("使用代理ip:{},请求地址:{}", randomProxy, realUrl);
+            log.info("使用代理ip : {}, 请求地址 : {}", randomProxy, realUrl);
         }
 
         if (!headers.isEmpty()) {
@@ -334,7 +309,7 @@ public class Octopus extends AbstractOctopusBean {
 
         // 打印此次抓取数据的基本信息
         log.info("=================数据抓取参数===============");
-        log.info("目标地址 :" + this.url);
+        log.info("目标地址 :" + this.baseUrl);
         log.info("请求方式 :" + (this.get ? "GET" : "POST"));
         log.info("提取器 :" + this.extractor.getClass().getSimpleName());
         log.info("翻页 :" + (this.pageDown ? "是" : "否"));
@@ -356,7 +331,7 @@ public class Octopus extends AbstractOctopusBean {
         }
 
         // 通过是否翻页区分是否使用多线程 , 如果不分页或者只查询一页的时候, 使用单线程,
-        if (!pageDown || page == 1) {
+        if (!pageDown && page <= 1) {
             // 解析数据
             extractor.extract(this);
         } else {
@@ -370,7 +345,7 @@ public class Octopus extends AbstractOctopusBean {
                     // 解析数据
                     extractor.extract(Octopus.this);
                 }
-            }.sync(true).execute(threadSize > 1 ? threadSize : 1);
+            }.sync(true).execute(Math.max(threadSize, 1));
         }
     }
 
@@ -384,11 +359,12 @@ public class Octopus extends AbstractOctopusBean {
         return threadSize;
     }
 
-    public String getUrl() {
-        return url;
+
+    public String getDoUrl() {
+        return doUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 }

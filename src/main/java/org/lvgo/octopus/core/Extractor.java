@@ -46,7 +46,7 @@ public interface Extractor {
                 // 提供方法用于用户对数据的解析处理
                 elementHandle(octopus, element);
             }
-        }.sync(true).execute(octopus.getPageSize() > 1 ? octopus.getPageSize() : 1);
+        }.sync(true).execute(Math.max(octopus.getPageSize(), 1));
     }
 
     /**

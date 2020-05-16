@@ -21,6 +21,8 @@ logging:
     druid:
       sql:
         Statement: debug
+  file:
+    path: log\weboctopus.log
 
 
 
