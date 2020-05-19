@@ -5,10 +5,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lvgo.octopus.bean.OctopusPage;
-import org.lvgo.octopus.core.Extractor;
+import org.lvgo.octopus.core.MovieExtractor;
 import org.lvgo.octopus.core.Octopus;
 import org.lvgo.weboctopus.common.GeneralConstant;
 import org.lvgo.weboctopus.movie.bean.Comment;
+import org.lvgo.weboctopus.movie.bean.Movie;
 import org.lvgo.weboctopus.movie.mapper.CommentMapper;
 import org.lvgo.weboctopus.movie.mapper.MovieMapper;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class DouBanExtractor implements Extractor {
+public class DouBanExtractor implements MovieExtractor {
 
     @Resource
     private MovieMapper movieMapper;
@@ -35,16 +36,50 @@ public class DouBanExtractor implements Extractor {
     private CommentMapper commentMapper;
 
     @Override
+    public void fetchMovieInfo(Octopus octopus) {
+        // 抓取电影信息, 这里只需要抓一次电影的信息即可
+        Document document = octopus.getDocument();
+        Element movieInfo = document.getElementById("info");
+        String movieId = octopus.getParam("movieId");
+        Movie movie = new Movie();
+        movie.setMovieId(movieId);
+        // 数据获取时间
+        movie.setDataTime(LocalDateTime.now());
+
+        Elements nameInfo = document.getElementsByTag("H1").first().getElementsByTag("span");
+        // 影片名称
+        movie.setMovieName(nameInfo.get(0).text());
+        // 影片发行时间
+        movie.setInitialReleaseDate(nameInfo.get(1).text());
+
+        // 这里会有10个p1, 根据p1获取
+        Elements p1 = movieInfo.getElementsByClass("p1");
+
+        // 发行国家
+//        movie.setProducerCountry();
+
+        // 数据来源
+        movie.setSource("douban");
+
+        if (movieMapper.selectById(movieId) == null) {
+            movieMapper.insert(movie);
+        } else {
+            movieMapper.updateById(movie);
+        }
+    }
+
+
+    @Override
     public void extract(Octopus octopus) {
         if (octopus.isSuccess()) {
             Document document = octopus.getDocument();
             // 获取评论上下文
-            Elements comment = document.getElementsByTag("H2");
-            if (comment.isEmpty()) {
+            Elements comments = document.getElementsByTag("H2");
+            if (comments.isEmpty()) {
                 return;
             }
             // 并发处理
-            concurrentHandle(octopus, comment);
+            concurrentHandle(octopus, comments);
 
         } else {
             log.error("请求失败,{}", octopus);
@@ -61,7 +96,10 @@ public class DouBanExtractor implements Extractor {
     public void elementHandle(Octopus octopus, Element element) {
         try {
             Comment comment = new Comment();
+            comment.setMovieId(octopus.getParam("movieId"));
+            // 数据抓取时间
             comment.setDataTime(LocalDateTime.now());
+            // 数据来源
             comment.setSource(GeneralConstant.SOURCE_DOU_BAN);
 
             String href = element.getElementsByTag("a").first().attr("href");
@@ -70,28 +108,32 @@ public class DouBanExtractor implements Extractor {
 
             if (commentDetail != null) {
                 Element header = commentDetail.getElementsByTag("header").first();
+                String commentId = commentDetail.getElementsByClass("main").first().attr("id");
 
+                // 评论id
+                comment.setCommentId(commentId);
                 String commentPeople = header.getElementsByTag("a").get(0).attr("href");
+                // 评论人地址
                 comment.setCommentPeople(commentPeople);
-                String movie = header.getElementsByTag("a").get(1).attr("href");
-                movie = movie.substring(0, movie.length() - 1);
-                movie = movie.substring(movie.lastIndexOf("/") + 1);
-                comment.setMovieId(movie);
 
                 // 评论头内容, 存在于4个span中, 如果span的size为2时, 说明该条评论来自豆瓣APP
                 Elements headerSpan = header.getElementsByTag("span");
                 if (headerSpan.size() == 2) {
                     Element commentTime = header.getElementsByTag("span").get(1);
+                    // 评论日期
                     comment.setCommentDate(commentTime.text());
                 } else {
                     String star = header.getElementsByTag("span").get(2).text();
+                    // 评论星级
                     comment.setCommentRating(star);
 
                     Element commentTime = header.getElementsByTag("span").get(3);
+                    // 评论日期
                     comment.setCommentDate(commentTime.text());
                 }
 
                 String text = commentDetail.getElementsByClass("review-content").first().text();
+                // 评论内容
                 comment.setComment(text);
 
                 String attr = commentDetail.getElementById("review-content").attr("data-ad-ext");
@@ -99,12 +141,19 @@ public class DouBanExtractor implements Extractor {
                 String valuable = worth[0].trim().substring(2);
                 String worthless = worth[1].trim().substring(2);
 
+                // 有用值
                 comment.setValuable(Integer.valueOf(valuable));
+                // 无用值
                 comment.setWorthless(Integer.valueOf(worthless));
 
-                commentMapper.insert(comment);
+                // 如果数据存在进行更新
+                if (commentMapper.selectById(commentId) == null) {
+                    commentMapper.insert(comment);
+                } else {
+                    commentMapper.updateById(comment);
+                }
             } else {
-                log.error(href + " is error!!");
+                log.error(href + " 抓取内容为空!!");
             }
         } catch (Exception e) {
             log.error("数据出现异常 : {}, 数据地址 : {}", e.getMessage(), octopus.getDoUrl());

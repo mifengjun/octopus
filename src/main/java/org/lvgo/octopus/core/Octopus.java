@@ -30,6 +30,12 @@ public class Octopus extends AbstractOctopusBean {
      * 最大尝试次数
      */
     private static final int MAX_ATTEMPTS = 3;
+
+    /**
+     * 辅助参数
+     */
+    private HashMap<String, String> params = new HashMap<>();
+
     /**
      * 爬取数据地址, 处理地址
      */
@@ -131,6 +137,11 @@ public class Octopus extends AbstractOctopusBean {
 
     public boolean isPageDown() {
         return pageDown;
+    }
+
+    public Octopus param(String key, String value) {
+        params.put(key, value);
+        return this;
     }
 
     public Octopus url(String url) {
@@ -366,5 +377,9 @@ public class Octopus extends AbstractOctopusBean {
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    public String getParam(String key) {
+        return params.get(key);
     }
 }

@@ -30,10 +30,7 @@ public class MovieServiceImpl extends ServiceImpl<MovieMapper, Movie> implements
     @Override
     public void fetchData(String source) {
         if (GeneralConstant.SOURCE_DOU_BAN.equals(source)) {
-
             douBanMovie();
-
-
         } else {
             log.info("啥也没有");
         }
@@ -41,12 +38,14 @@ public class MovieServiceImpl extends ServiceImpl<MovieMapper, Movie> implements
 
     private void douBanMovie() {
         String movieId = "30176393";
+        String movieUrl = "https://movie.douban.com/subject/" + movieId;
+        // 定义一个八爪鱼
+        Octopus octopus = Octopus.init().param("movieId", movieId);
+        // 抓取一次电影信息
+        douBanExtractor.fetchMovieInfo(octopus.connect(movieUrl));
 
-        String url = "https://movie.douban.com/subject/" + movieId + "/reviews";
-
-        Octopus octopus = Octopus.init();
-
-        octopus.url(url).extractor(douBanExtractor).pageDown(true).page(3).pageSize(20);
+        String commentUrl = "https://movie.douban.com/subject/" + movieId + "/reviews";
+        octopus.url(commentUrl).extractor(douBanExtractor).pageDown(true).page(3).pageSize(20);
 
         octopus.start();
     }

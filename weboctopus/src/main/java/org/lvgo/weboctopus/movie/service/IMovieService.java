@@ -13,5 +13,9 @@ import org.lvgo.weboctopus.movie.bean.Movie;
  */
 public interface IMovieService extends IService<Movie> {
 
+    /**
+     * 抓取电影数据
+     * @param source
+     */
     void fetchData(String source);
 }

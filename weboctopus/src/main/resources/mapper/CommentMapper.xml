@@ -4,7 +4,7 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.movie.bean.Comment">
-        <id column="id" property="id"/>
+        <id column="comment_id" property="commentId"/>
         <result column="movie_id" property="movieId"/>
         <result column="comment_people" property="commentPeople"/>
         <result column="comment" property="comment"/>

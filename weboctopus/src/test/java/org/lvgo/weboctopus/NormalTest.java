@@ -24,4 +24,13 @@ class NormalTest {
         Document document = Octopus.init().connect(url).getDocument();
         System.out.println("document = " + document.getElementsByTag("body").first().text());
     }
+
+
+    @Test
+    void fetchMovie(){
+        String url = "https://movie.douban.com/subject/33420285/";
+
+        Document document = Octopus.init().connect(url).getDocument();
+        System.out.println("document = " + document.getElementById("info"));
+    }
 }

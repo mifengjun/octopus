@@ -1,5 +1,7 @@
 package org.lvgo.weboctopus.movie.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -25,7 +27,8 @@ public class Movie implements Serializable {
     /**
      * 影片id
      */
-    private String id;
+    @TableId(value = "movie_id", type = IdType.INPUT)
+    private String movieId;
 
     /**
      * 影片名称
@@ -51,11 +54,6 @@ public class Movie implements Serializable {
      * 影片来源
      */
     private String source;
-
-    /**
-     * 影片来源
-     */
-    private String sourceName;
 
     /**
      * 数据时间
