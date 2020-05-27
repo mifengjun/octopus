@@ -22,7 +22,7 @@ logging:
       sql:
         Statement: debug
   file:
-    path: log\weboctopus.log
-
+    path: log
+    name: octupos.log
 
 

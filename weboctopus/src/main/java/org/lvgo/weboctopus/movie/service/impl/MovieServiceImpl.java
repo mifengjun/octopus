@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lvgo.octopus.core.Octopus;
 import org.lvgo.weboctopus.common.GeneralConstant;
 import org.lvgo.weboctopus.extractor.DouBanExtractor;
-import org.lvgo.weboctopus.movie.bean.Movie;
+import org.lvgo.weboctopus.movie.entity.Movie;
 import org.lvgo.weboctopus.movie.mapper.MovieMapper;
 import org.lvgo.weboctopus.movie.service.IMovieService;
 import org.springframework.stereotype.Service;

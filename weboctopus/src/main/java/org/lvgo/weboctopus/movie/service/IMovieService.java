@@ -1,7 +1,7 @@
 package org.lvgo.weboctopus.movie.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.lvgo.weboctopus.movie.bean.Movie;
+import org.lvgo.weboctopus.movie.entity.Movie;
 
 /**
  * <p>
@@ -9,13 +9,9 @@ import org.lvgo.weboctopus.movie.bean.Movie;
  * </p>
  *
  * @author lvgorice@gmail.com
- * @since 2020-05-14
+ * @since 2020-05-27
  */
 public interface IMovieService extends IService<Movie> {
 
-    /**
-     * 抓取电影数据
-     * @param source
-     */
     void fetchData(String source);
 }

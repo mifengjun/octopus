@@ -8,8 +8,8 @@ import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.core.MovieExtractor;
 import org.lvgo.octopus.core.Octopus;
 import org.lvgo.weboctopus.common.GeneralConstant;
-import org.lvgo.weboctopus.movie.bean.Comment;
-import org.lvgo.weboctopus.movie.bean.Movie;
+import org.lvgo.weboctopus.movie.entity.Comment;
+import org.lvgo.weboctopus.movie.entity.Movie;
 import org.lvgo.weboctopus.movie.mapper.CommentMapper;
 import org.lvgo.weboctopus.movie.mapper.MovieMapper;
 import org.springframework.stereotype.Component;
@@ -156,7 +156,7 @@ public class DouBanExtractor implements MovieExtractor {
                 log.error(href + " 抓取内容为空!!");
             }
         } catch (Exception e) {
-            log.error("数据出现异常 : {}, 数据地址 : {}", e.getMessage(), octopus.getDoUrl());
+            log.error("数据出现异常, 数据地址 : {}", octopus.getDoUrl(), e);
         }
 
     }

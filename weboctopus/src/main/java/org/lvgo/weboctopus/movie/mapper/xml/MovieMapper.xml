@@ -3,15 +3,19 @@
 <mapper namespace="org.lvgo.weboctopus.movie.mapper.MovieMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.movie.bean.Movie">
+    <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.movie.entity.Movie">
         <id column="movie_id" property="movieId"/>
         <result column="movie_name" property="movieName"/>
         <result column="initial_release_date" property="initialReleaseDate"/>
         <result column="movie_time" property="movieTime"/>
         <result column="producer_country" property="producerCountry"/>
         <result column="source" property="source"/>
-        <result column="source_name" property="sourceName"/>
         <result column="data_time" property="dataTime"/>
     </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        movie_id, movie_name, initial_release_date, movie_time, producer_country, source, data_time
+    </sql>
 
 </mapper>

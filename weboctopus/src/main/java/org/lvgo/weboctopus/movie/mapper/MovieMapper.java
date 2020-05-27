@@ -1,7 +1,7 @@
 package org.lvgo.weboctopus.movie.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.lvgo.weboctopus.movie.bean.Movie;
+import org.lvgo.weboctopus.movie.entity.Movie;
 
 /**
  * <p>
@@ -9,7 +9,7 @@ import org.lvgo.weboctopus.movie.bean.Movie;
  * </p>
  *
  * @author lvgorice@gmail.com
- * @since 2020-05-14
+ * @since 2020-05-27
  */
 public interface MovieMapper extends BaseMapper<Movie> {
 

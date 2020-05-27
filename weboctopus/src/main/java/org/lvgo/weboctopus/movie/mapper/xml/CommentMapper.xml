@@ -3,7 +3,7 @@
 <mapper namespace="org.lvgo.weboctopus.movie.mapper.CommentMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.movie.bean.Comment">
+    <resultMap id="BaseResultMap" type="org.lvgo.weboctopus.movie.entity.Comment">
         <id column="comment_id" property="commentId"/>
         <result column="movie_id" property="movieId"/>
         <result column="comment_people" property="commentPeople"/>
@@ -15,5 +15,10 @@
         <result column="valuable" property="valuable"/>
         <result column="worthless" property="worthless"/>
     </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        comment_id, movie_id, comment_people, comment, comment_date, comment_rating, source, data_time, valuable, worthless
+    </sql>
 
 </mapper>

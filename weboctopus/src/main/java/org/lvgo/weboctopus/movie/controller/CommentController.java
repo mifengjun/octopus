@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  *
  * @author lvgorice@gmail.com
- * @since 2020-05-14
+ * @since 2020-05-27
  */
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/movie/comment")
 public class CommentController {
 
 }
+

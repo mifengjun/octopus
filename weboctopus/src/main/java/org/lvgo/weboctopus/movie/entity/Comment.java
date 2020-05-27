@@ -1,10 +1,11 @@
-package org.lvgo.weboctopus.movie.bean;
+package org.lvgo.weboctopus.movie.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,11 +16,11 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author lvgorice@gmail.com
- * @since 2020-05-14
+ * @since 2020-05-27
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
+@TableName("comment")
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,46 +34,55 @@ public class Comment implements Serializable {
     /**
      * 影片id
      */
+    @TableField("movie_id")
     private String movieId;
 
     /**
      * 评论人
      */
+    @TableField("comment_people")
     private String commentPeople;
 
     /**
      * 评论内容
      */
+    @TableField("comment")
     private String comment;
 
     /**
      * 评论日期
      */
+    @TableField("comment_date")
     private String commentDate;
 
     /**
      * 评论星级
      */
+    @TableField("comment_rating")
     private String commentRating;
 
     /**
      * 评论来源
      */
+    @TableField("source")
     private String source;
 
     /**
      * 数据时间
      */
+    @TableField("data_time")
     private LocalDateTime dataTime;
 
     /**
      * 点击有用数
      */
+    @TableField("valuable")
     private Integer valuable;
 
     /**
      * 点击没用数
      */
+    @TableField("worthless")
     private Integer worthless;
 
 
