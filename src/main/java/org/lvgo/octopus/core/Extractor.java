@@ -21,7 +21,6 @@ public interface Extractor {
      * @return 记录总页数
      */
     OctopusPage getPageInfo(Octopus octopus);
-
     /**
      * 提取数据
      *

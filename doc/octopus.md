@@ -174,4 +174,14 @@ octopus 逐渐雏形, 提交第一个demo , 抓取新浪博客数据
 开发方向转变, 将octopus变成一个web可部署的应用方向. 其中仍保留爬虫系统内容, 且与web应用独立
 
 
+#### 2020年5月27日17:58:54
+
+增加了手动MybatisPlus生成代码类.
+
+2020年5月27日19:13:32
+
+又看了一下大佬的作品 https://github.com/lvgocc/webmagic/blob/master/webmagic-core
+发觉自己似乎做的有一些问题, 我讲octopus类封装的过于臃肿, 维护和扩展变得异常复杂. 准备重新梳理思路
+重新考虑模块设计.
+
 

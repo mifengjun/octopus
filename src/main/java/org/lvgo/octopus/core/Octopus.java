@@ -4,12 +4,14 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
-import org.lvgo.octopus.bean.AbstractOctopusBean;
 import org.lvgo.octopus.bean.OctopusPage;
 import org.lvgo.octopus.bean.OctopusProxy;
 import org.lvgo.silent.TaskHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +26,14 @@ import java.util.Map;
  * @version 1.0
  * @date 2019/12/10 10:41
  */
-public class Octopus extends AbstractOctopusBean {
+public class Octopus implements Serializable {
+
     private static final long serialVersionUID = -6080428937930565035L;
     /**
      * 最大尝试次数
      */
     private static final int MAX_ATTEMPTS = 3;
-
+    private Logger log = LoggerFactory.getLogger(this.getClass());
     /**
      * 辅助参数
      */
