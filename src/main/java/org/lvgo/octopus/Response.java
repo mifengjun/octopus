@@ -2,6 +2,9 @@ package org.lvgo.octopus;
 
 import org.jsoup.nodes.Document;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 返回载体
  *
@@ -11,12 +14,15 @@ import org.jsoup.nodes.Document;
  */
 public class Response {
 
-    private String content;
-
     /**
-     * jsoup 的返回对象
+     * jsoup 的返回的dom对象
      */
     private Document document;
+
+    /**
+     * 探测深度和url
+     */
+    private Map<String, List<String>> probeUrl;
 
     public Document getDocument() {
         return document;
@@ -24,13 +30,5 @@ public class Response {
 
     public void setDocument(Document document) {
         this.document = document;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }

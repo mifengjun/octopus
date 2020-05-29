@@ -13,4 +13,6 @@ import java.io.Serializable;
  */
 public class Data implements Serializable {
     private static final long serialVersionUID = 5191403235109447830L;
+
+    private int type;
 }

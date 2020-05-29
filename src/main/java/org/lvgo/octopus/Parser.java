@@ -8,4 +8,13 @@ package org.lvgo.octopus;
  * @date 2020/5/28 14:22
  */
 public interface Parser {
+
+    /**
+     * 解析下载的返回值
+     *
+     * @param request  请求载体
+     * @param response simulator 下载到的 response
+     * @return 解析的结果数据
+     */
+    Data parse(Request request, Response response);
 }

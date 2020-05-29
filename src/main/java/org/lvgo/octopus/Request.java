@@ -1,7 +1,10 @@
 package org.lvgo.octopus;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 请求载体
@@ -12,20 +15,39 @@ import java.util.Map;
  */
 public class Request {
 
+    private Logger log = LoggerFactory.getLogger(Request.class);
+
     /**
-     * 请求头
+     * 请求地址
      */
-    private Map<String, String> headers = new HashMap<>(5);
+    private Queue<String> urlQueue = new LinkedBlockingQueue<>();
+    /**
+     * 请求方式
+     */
+    private String method = OctopusConstants.REQUEST_METHOD_GET;
 
 
-    public Map<String, String> getHeaders() {
-        return headers;
+    public Request() {
+
     }
 
-    /**
-     * 请求头, 提供单个请求头设置, key value 格式
-     */
-    public void header(String key, String value) {
-        headers.put(key, value);
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public void putUrl(String url) {
+        urlQueue.add(url);
+        log.info("当前url队列大小:{}", urlQueue.size());
+    }
+
+    public String getUrl() {
+        String url = urlQueue.poll();
+        log.info("当前url队列大小:{}", urlQueue.size());
+        return url;
     }
 }

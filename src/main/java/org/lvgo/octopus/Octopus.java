@@ -1,5 +1,6 @@
 package org.lvgo.octopus;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -50,25 +51,55 @@ public class Octopus implements Serializable {
      */
     private Handler handler;
 
+    /**
+     * 请求载体
+     */
+    private Request request = new Request();
 
-    public Octopus start() {
-        Response response = simulator.downLoad();
-        return this;
+
+    public Octopus() {
     }
 
-
-    public Octopus(Simulator simulator) {
-        this.simulator = simulator;
+    public Octopus(String url) {
+        this.request.putUrl(url);
+        this.simulator = new Simulator();
     }
 
     /**
-     * 在初始化的时候放入模拟器
+     * 初始化
      *
-     * @param simulator 模拟器
      * @return 章鱼
      */
-    public static Octopus init(Simulator simulator) {
-        return new Octopus(simulator);
+    public static Octopus init(String url) {
+        return new Octopus(url);
+    }
+
+    public Octopus simulator(Simulator simulator) {
+        this.simulator = simulator;
+        return this;
+    }
+
+    public Octopus parser(Class clazz) {
+        try {
+            this.parser = (Parser) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return this;
+    }
+
+    public void start() throws IOException {
+        String url = request.getUrl();
+        if (url == null) {
+            return;
+        }
+        // 下载页面, 结果存储在 #simulator.response 中
+        simulator.downLoad(url);
+
+        // 解析页面, 输入 simulator.response 输出 data
+        parser.parse(request, simulator.getResponse());
+        start();
     }
 
     /**
@@ -82,28 +113,16 @@ public class Octopus implements Serializable {
         return this;
     }
 
-
     public Simulator getSimulator() {
         return simulator;
-    }
-
-    public void setSimulator(Simulator simulator) {
-        this.simulator = simulator;
     }
 
     public Parser getParser() {
         return parser;
     }
 
-    public void setParser(Parser parser) {
-        this.parser = parser;
-    }
-
     public Handler getHandler() {
         return handler;
     }
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
 }
