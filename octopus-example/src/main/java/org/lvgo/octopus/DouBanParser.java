@@ -20,6 +20,8 @@ public class DouBanParser implements Parser {
     public Data parse(Request request, Response response) {
         Document document = response.getDocument();
         Element reviewList = document.getElementsByClass("review-list").first();
+
+        // 如果评论列表不为空, 就将所有的评论详情url放入队列中
         if (reviewList != null) {
             Elements reviewItems = reviewList.getElementsByClass("review-item");
             for (Element reviewItem : reviewItems) {

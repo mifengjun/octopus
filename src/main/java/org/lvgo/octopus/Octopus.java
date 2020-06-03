@@ -99,6 +99,7 @@ public class Octopus implements Serializable {
 
         // 解析页面, 输入 simulator.response 输出 data
         parser.parse(request, simulator.getResponse());
+        // 如果地址不为空, 继续爬取
         start();
     }
 
