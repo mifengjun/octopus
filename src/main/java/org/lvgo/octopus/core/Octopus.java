@@ -1,5 +1,7 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.core;
 
+import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.Request;
 import org.lvgo.octopus.util.OctopusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,6 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.core;
+
+import org.lvgo.octopus.assist.Data;
 
 /**
  * 处理器

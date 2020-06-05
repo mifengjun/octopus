@@ -1,4 +1,4 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.assist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +25,6 @@ public class Request {
      * 请求地址
      */
     private Queue<String> urlQueue = new LinkedBlockingQueue<>();
-    /**
-     * 请求方式
-     */
-    private String method = OctopusConstants.REQUEST_METHOD_GET;
 
     public Request() {
 
@@ -44,14 +40,6 @@ public class Request {
 
     public void setRootUrl(String rootUrl) {
         this.rootUrl = rootUrl;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
     }
 
     public void putUrl(String url) {

@@ -1,4 +1,8 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.core;
+
+import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.Request;
+import org.lvgo.octopus.assist.Response;
 
 /**
  * octopus 分析器, 将模拟器的返回值作为输入, 网页内容作为输出

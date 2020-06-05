@@ -1,4 +1,4 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.assist;
 
 import org.jsoup.nodes.Document;
 

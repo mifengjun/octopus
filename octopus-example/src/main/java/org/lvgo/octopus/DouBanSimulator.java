@@ -1,5 +1,7 @@
 package org.lvgo.octopus;
 
+import org.lvgo.octopus.core.Simulator;
+
 /**
  * //TODO 描述此类作用
  *

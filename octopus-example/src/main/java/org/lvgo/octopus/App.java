@@ -1,5 +1,7 @@
 package org.lvgo.octopus;
 
+import org.lvgo.octopus.core.Octopus;
+
 /**
  * Hello world!
  */

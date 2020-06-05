@@ -3,6 +3,10 @@ package org.lvgo.octopus;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.Request;
+import org.lvgo.octopus.assist.Response;
+import org.lvgo.octopus.core.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

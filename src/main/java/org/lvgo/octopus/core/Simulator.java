@@ -1,7 +1,8 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.core;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.lvgo.octopus.assist.Response;
 import org.lvgo.octopus.util.OctopusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
