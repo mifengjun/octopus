@@ -2,6 +2,9 @@ package org.lvgo.octopus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 调度
@@ -17,82 +20,159 @@ import java.util.List;
  * @version 1.0
  * @date 2020/6/3 10:54
  */
-public class UrlScheduler<N> {
+public class UrlScheduler {
 
-    private TargetUrlNode<N> targetUrlNode;
+    static ConcurrentHashMap<Integer, Node> targetUrlNode = new ConcurrentHashMap<>();
+    static AtomicInteger size = new AtomicInteger(0);
+    static AtomicInteger markerSize = new AtomicInteger(0);
+    private Node root;
 
-    private UrlScheduler() {
-        targetUrlNode = new TargetUrlNode<>();
+    private UrlScheduler(Node node) {
+        root = node;
     }
 
-    public static UrlScheduler getInstance() {
-        return SingleUrlScheduler.urlScheduler;
+    public static UrlScheduler getInstance(String url) {
+        if (SingletonUrlScheduler.urlScheduler == null) {
+            Node node = new Node();
+            node.addUrl(url);
+            SingletonUrlScheduler.urlScheduler = new UrlScheduler(node);
+            UrlScheduler.targetUrlNode.put(node.hashCode(), node);
+        }
+        return SingletonUrlScheduler.urlScheduler;
     }
 
-    private static class TargetUrlNode<N> {
-        private int depth;
-        private N n;
-        private List<TargetUrlNode<N>> targetUrlNodes = new ArrayList<>(20);
-        private TargetUrlNode<N> parent;
-
-        public TargetUrlNode() {
-        }
-
-        public TargetUrlNode(N n) {
-            this.n = n;
-        }
-
-        public int getDepth() {
-            return depth;
-        }
-
-        public void setDepth(int depth) {
-            this.depth = depth;
-        }
-
-        public N getN() {
-            return n;
-        }
-
-        public void setN(N n) {
-            this.n = n;
-        }
-
-        public List<TargetUrlNode<N>> getTargetUrlNodes() {
-            return targetUrlNodes;
-        }
-
-        public void setTargetUrlNodes(List<TargetUrlNode<N>> targetUrlNodes) {
-            this.targetUrlNodes = targetUrlNodes;
-        }
-
-        public TargetUrlNode<N> getParent() {
-            return parent;
-        }
-
-        public void setParent(TargetUrlNode<N> parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        public String toString() {
-            return "TargetUrlNode{" +
-                    "depth=" + depth +
-                    ", n=" + n +
-                    ", targetUrlNodes=" + targetUrlNodes +
-                    ", parent=" + parent +
-                    '}';
-        }
+    public Integer size() {
+        return UrlScheduler.size.get();
     }
 
-    private static class SingleUrlScheduler {
-        private static UrlScheduler urlScheduler = new UrlScheduler();
+    public Integer markerSize() {
+        return UrlScheduler.markerSize.get();
+    }
+
+    public Integer unMarkerSize() {
+        return UrlScheduler.size.get() - UrlScheduler.markerSize.get();
+    }
+
+    public Node root() {
+        return root;
     }
 
     @Override
     public String toString() {
-        return "UrlScheduler{" +
-                "targetUrlNode=" + targetUrlNode +
-                '}';
+        return new StringJoiner(", ", UrlScheduler.class.getSimpleName() + "[", "]")
+                .add("targetUrlNode=" + targetUrlNode)
+                .toString();
+    }
+
+    private static class SingletonUrlScheduler {
+        private static UrlScheduler urlScheduler;
+    }
+}
+
+class Node {
+    private boolean root = true;
+    private int depth;
+    private List<Url> urls = new ArrayList<>(20);
+    private Integer parentCode;
+    private Integer childCode;
+
+    public Integer size() {
+        return UrlScheduler.size.get();
+    }
+
+    public Integer markerSize() {
+        return UrlScheduler.markerSize.get();
+    }
+
+    public Integer unMarkerSize() {
+        return UrlScheduler.size.get() - UrlScheduler.markerSize.get();
+    }
+
+    public List<Url> getUrls() {
+        return urls;
+    }
+
+    public void addUrl(String url) {
+        UrlScheduler.size.getAndIncrement();
+        urls.add(new Url(url));
+    }
+
+    public Node addNode(Node n) {
+        n.parentCode = this.hashCode();
+        n.setDepth(this.getDepth() + 1);
+        UrlScheduler.targetUrlNode.put(n.hashCode(), n);
+        this.childCode = n.hashCode();
+        return this;
+    }
+
+    public Node parent() {
+        return UrlScheduler.targetUrlNode.get(this.parentCode());
+    }
+
+    public Node child() {
+        return UrlScheduler.targetUrlNode.get(this.childCode());
+    }
+
+    public boolean isRoot() {
+        return depth == 0;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    private void setDepth(Integer depth) {
+        this.depth = depth;
+        this.root = depth == 0;
+    }
+
+    public Integer parentCode() {
+        return parentCode;
+    }
+
+    public Integer childCode() {
+        return childCode;
+    }
+
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Node.class.getSimpleName() + "[", "]")
+                .add("root=" + root)
+                .add("depth=" + depth)
+                .add("urls=" + urls)
+                .add("parentCode=" + parentCode)
+                .add("childCode=" + childCode)
+                .toString();
+    }
+
+    class Url {
+        private String url;
+        private boolean marker;
+
+        public Url(String url) {
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public boolean isMarker() {
+            return marker;
+        }
+
+        public void marker() {
+            UrlScheduler.markerSize.getAndIncrement();
+            this.marker = true;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", Url.class.getSimpleName() + "[", "]")
+                    .add("url='" + url + "'")
+                    .add("marker=" + marker)
+                    .toString();
+        }
     }
 }
