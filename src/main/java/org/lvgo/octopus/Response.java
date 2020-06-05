@@ -18,6 +18,18 @@ public class Response {
      * jsoup 的返回的dom对象
      */
     private Document document;
+    /**
+     * 请求是否成功
+     */
+    private boolean success;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
     /**
      * 探测深度和url

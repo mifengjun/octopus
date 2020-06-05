@@ -7,8 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 浏览器模拟器
@@ -28,21 +31,13 @@ public class Simulator {
      */
     private Response response = new Response();
     /**
-     * 请求状态
-     */
-    private String statusCode;
-    /**
-     * 请求是否成功
-     */
-    private boolean success;
-    /**
      * 请求地址
      */
     private String url;
     /**
-     * 请求超时时间
+     * 请求超时时间, 单位秒
      */
-    private int timeoutMilliseconds = 30 * 1000;
+    private int timeoutMilliseconds = 30;
     /**
      * 请求间隔时间  单位:秒
      */
@@ -51,27 +46,29 @@ public class Simulator {
      * 忽略内容类型
      */
     private boolean ignoreContentType;
-
     /**
-     * #parser 解析后的数据
+     * 成功数量
      */
-    private Data data;
+    private AtomicInteger handleSum = new AtomicInteger(0);
+    /**
+     * 失败地址列表
+     */
+    private List<String> failUrl = new ArrayList<>(10);
     /**
      * 请求头
      */
     private Map<String, String> headers = new HashMap<>(3);
 
-    public Data getData() {
-        return data;
-    }
-
-    public void setData(Data data) {
-        this.data = data;
-    }
-
     public Simulator() {
     }
 
+    public AtomicInteger getHandleSum() {
+        return handleSum;
+    }
+
+    public List<String> getFailUrl() {
+        return failUrl;
+    }
 
     /**
      * 请求头, 提供单个请求头设置, key value 格式
@@ -115,8 +112,8 @@ public class Simulator {
     /**
      * 网页下载, 可自定义实现
      */
-    public void downLoad(String url) throws IOException {
-        logger.info("开始 downLoad ... 目标地址:{}", url);
+    public void downLoad(String url) {
+        logger.info("开始 {} {}", url, "downLoad ... ");
 
         // 建立连接, 并且设置是否忽略文本类型
         Connection connect = Jsoup.connect(url).ignoreContentType(ignoreContentType);
@@ -126,20 +123,21 @@ public class Simulator {
         }
 
         // 请求超时时间
-        connect.timeout(timeoutMilliseconds);
+        connect.timeout(timeoutMilliseconds * 1000);
 
         try {
             // 通过手动线程阻塞来控制时间间隔
             OctopusUtils.sleep(interval);
-
             response.setDocument(connect.get());
-
-
+            response.setSuccess(true);
         } catch (IOException e) {
             logger.error("{} 数据请求失败", url);
-            throw e;
+            failUrl.add(url);
+            response.setSuccess(false);
+        } finally {
+            this.getHandleSum().getAndIncrement();
         }
-        logger.info("完成 downLoad ... 目标地址:{}", url);
+        logger.info("完成 {} {}", url, "downLoad ... ");
     }
 
     public Simulator ignoreContentType(boolean ignoreContentType) {
@@ -148,25 +146,9 @@ public class Simulator {
     }
 
 
-    public int getTimeoutMilliseconds() {
-        return timeoutMilliseconds;
-    }
-
-
     public Response getResponse() {
         return response;
     }
-
-
-    public String getStatusCode() {
-        return statusCode;
-    }
-
-
-    public boolean isSuccess() {
-        return success;
-    }
-
 
     public String getUrl() {
         return url;

@@ -15,7 +15,6 @@ class UrlSchedulerTest {
         node.addUrl("3333");
         Node root = urlScheduler.root().addNode(node);
 
-        Assertions.assertEquals(root.hashCode(), node.parentCode());
         Assertions.assertEquals(root, node.parent());
 
         Assertions.assertEquals(urlScheduler.size(), node.size());

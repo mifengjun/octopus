@@ -15,16 +15,6 @@ public class Data implements Serializable {
     private static final long serialVersionUID = 5191403235109447830L;
 
     private int type;
-    private String value;
-
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     public int getType() {
         return type;

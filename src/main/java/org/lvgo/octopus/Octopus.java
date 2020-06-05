@@ -1,6 +1,9 @@
 package org.lvgo.octopus;
 
-import java.io.IOException;
+import org.lvgo.octopus.util.OctopusUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 
 /**
@@ -32,6 +35,7 @@ import java.io.Serializable;
 public class Octopus implements Serializable {
 
     private static final long serialVersionUID = 9143660675316418503L;
+    private Logger logger = LoggerFactory.getLogger(Octopus.class);
     /**
      * 浏览器模拟器
      * <p>
@@ -62,6 +66,7 @@ public class Octopus implements Serializable {
 
     public Octopus(String url) {
         this.request.putUrl(url);
+        this.request.setRootUrl(url);
         this.simulator = new Simulator();
     }
 
@@ -79,6 +84,17 @@ public class Octopus implements Serializable {
         return this;
     }
 
+    public Octopus timeout(int seconds) {
+        this.simulator = this.simulator.timeout(seconds);
+        return this;
+    }
+
+    public Octopus interval(int seconds) {
+        this.simulator = this.simulator.interval(seconds);
+        return this;
+    }
+
+
     public Octopus parser(Class clazz) {
         try {
             this.parser = (Parser) clazz.newInstance();
@@ -89,18 +105,53 @@ public class Octopus implements Serializable {
         return this;
     }
 
-    public void start() throws IOException {
+    public Octopus start() {
+        cycleTask();
+
+        return fetchTask();
+    }
+
+    private Octopus fetchTask() {
+        if (parser == null) {
+            logger.error("parser is null , please set parser and try again later");
+            return this;
+        }
+
+        if (handler == null) {
+            logger.warn("handler is null , parser's data does't handle");
+        }
+
         String url = request.getUrl();
         if (url == null) {
-            return;
+            return this;
         }
         // 下载页面, 结果存储在 #simulator.response 中
         simulator.downLoad(url);
 
         // 解析页面, 输入 simulator.response 输出 data
-        parser.parse(request, simulator.getResponse());
+        Data data = parser.parse(request, simulator.getResponse());
+
+        // 处理对象
+        if (handler != null) {
+            handler.handler(data);
+        }
         // 如果地址不为空, 继续爬取
-        start();
+        return fetchTask();
+    }
+
+    private void cycleTask() {
+        final Long startMillis = System.currentTimeMillis();
+        new Thread(() -> {
+            logger.info("octopus launch successful!!!");
+            while (true) {
+                OctopusUtils.sleep(20);
+                long runTime = System.currentTimeMillis() - startMillis;
+                logger.info("octopus 已运行 : {} 秒, 共处理 : {} 个地址, 成功 : {} 个, 失败 : {} 个",
+                        runTime / 1000, simulator.getHandleSum().get(),
+                        simulator.getHandleSum().get() - simulator.getFailUrl().size(),
+                        simulator.getFailUrl().size());
+            }
+        }, "o-cycle-t").start();
     }
 
     /**

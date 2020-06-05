@@ -28,6 +28,11 @@ public class DouBanParser implements Parser {
                 String url = reviewItem.getElementsByTag("H2").first().getElementsByTag("a").first().attr("href");
                 request.putUrl(url);
             }
+
+            String pageUrl = request.getRootUrl() + "?start=" + request.getCurrentPage().incrementAndGet() * 20;
+            log.info("加入下一页地址到地址队列 : {}", pageUrl);
+            request.putUrl(pageUrl);
+
         } else {
             Comment comment = new Comment();
             Element header = document.getElementsByTag("header").first();
@@ -70,7 +75,6 @@ public class DouBanParser implements Parser {
             comment.setWorthless(Integer.valueOf(worthless));
 
         }
-
         return null;
     }
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 请求载体
@@ -17,6 +18,9 @@ public class Request {
 
     private Logger log = LoggerFactory.getLogger(Request.class);
 
+    private AtomicInteger currentPage = new AtomicInteger(0);
+
+    private String rootUrl;
     /**
      * 请求地址
      */
@@ -26,11 +30,21 @@ public class Request {
      */
     private String method = OctopusConstants.REQUEST_METHOD_GET;
 
-
     public Request() {
 
     }
 
+    public AtomicInteger getCurrentPage() {
+        return currentPage;
+    }
+
+    public String getRootUrl() {
+        return rootUrl;
+    }
+
+    public void setRootUrl(String rootUrl) {
+        this.rootUrl = rootUrl;
+    }
 
     public String getMethod() {
         return method;
@@ -42,12 +56,12 @@ public class Request {
 
     public void putUrl(String url) {
         urlQueue.add(url);
-        log.info("当前url队列大小:{}", urlQueue.size());
+        log.info("加入地址成功! 当前url队列大小:{}", urlQueue.size());
     }
 
     public String getUrl() {
         String url = urlQueue.poll();
-        log.info("当前url队列大小:{}", urlQueue.size());
+        log.info("获取地址成功! 当前url队列大小:{}", urlQueue.size());
         return url;
     }
 }
