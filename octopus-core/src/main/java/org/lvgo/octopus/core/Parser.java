@@ -1,6 +1,6 @@
 package org.lvgo.octopus.core;
 
-import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.OctopusData;
 import org.lvgo.octopus.assist.Request;
 import org.lvgo.octopus.assist.Response;
 
@@ -20,5 +20,5 @@ public interface Parser {
      * @param response simulator 下载到的 response
      * @return 解析的结果数据
      */
-    Data parse(Request request, Response response);
+    OctopusData parse(Request request, Response response);
 }

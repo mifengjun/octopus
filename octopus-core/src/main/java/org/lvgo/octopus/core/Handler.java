@@ -1,6 +1,6 @@
 package org.lvgo.octopus.core;
 
-import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.OctopusData;
 
 /**
  * 处理器
@@ -16,7 +16,7 @@ public interface Handler {
     /**
      * 处理解析出来的数据
      *
-     * @param data 解析出来的数据对象
+     * @param octopusData 解析出来的数据对象
      */
-    void handler(Data data);
+    void handler(OctopusData octopusData);
 }

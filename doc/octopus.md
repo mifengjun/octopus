@@ -192,7 +192,7 @@ octopus 逐渐雏形, 提交第一个demo , 抓取新浪博客数据
 重新梳理思路后出现一个问题:
 
 输入一url - 返回 html 
-输入html - 解析 - 返回 data
+输入html - 解析 - 返回 octopusData
 .
 .
 .

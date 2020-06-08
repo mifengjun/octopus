@@ -9,21 +9,41 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>octopus-example</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <lombok.version>1.18.12</lombok.version>
+        <logback.version>1.1.7</logback.version>
     </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.lvgo</groupId>
-            <artifactId>octopus</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.29</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.lvgo.octopus</groupId>
+            <artifactId>octopus-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lvgo.octopus</groupId>
+            <artifactId>octopus-parser</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
@@ -33,6 +53,7 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
 
         <dependency>
             <groupId>org.projectlombok</groupId>

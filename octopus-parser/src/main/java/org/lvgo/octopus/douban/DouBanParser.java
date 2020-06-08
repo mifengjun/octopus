@@ -1,9 +1,9 @@
-package org.lvgo.octopus;
+package org.lvgo.octopus.douban;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.OctopusData;
 import org.lvgo.octopus.assist.Request;
 import org.lvgo.octopus.assist.Response;
 import org.lvgo.octopus.core.Parser;
@@ -21,7 +21,10 @@ public class DouBanParser implements Parser {
     private Logger log = LoggerFactory.getLogger(DouBanParser.class);
 
     @Override
-    public Data parse(Request request, Response response) {
+    public OctopusData parse(Request request, Response response) {
+
+        Comment comment = new Comment();
+
         Document document = response.getDocument();
         Element reviewList = document.getElementsByClass("review-list").first();
 
@@ -36,9 +39,8 @@ public class DouBanParser implements Parser {
             String pageUrl = request.getRootUrl() + "?start=" + request.getCurrentPage().incrementAndGet() * 20;
             log.info("加入下一页地址到地址队列 : {}", pageUrl);
             request.putUrl(pageUrl);
-
+            comment.setType(1);
         } else {
-            Comment comment = new Comment();
             Element header = document.getElementsByTag("header").first();
             String commentId = document.getElementsByClass("main").first().attr("id");
 
@@ -79,6 +81,6 @@ public class DouBanParser implements Parser {
             comment.setWorthless(Integer.valueOf(worthless));
 
         }
-        return null;
+        return comment;
     }
 }

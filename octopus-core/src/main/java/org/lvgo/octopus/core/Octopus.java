@@ -1,6 +1,6 @@
 package org.lvgo.octopus.core;
 
-import org.lvgo.octopus.assist.Data;
+import org.lvgo.octopus.assist.OctopusData;
 import org.lvgo.octopus.assist.Request;
 import org.lvgo.octopus.util.OctopusUtils;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import java.io.Serializable;
  * 3. @{@link Parser} 处理过后返回结果为 data
  * 　　　↓
  * 　　　↓
- * 4. 将{@link Data} 交给 {@link Handler} 在处理
+ * 4. 将{@link OctopusData} 交给 {@link Handler} 在处理
  * 　　　↓
  * 　　end
  * 完成整个数据抓取的开始到结束过程
@@ -101,26 +101,24 @@ public class Octopus implements Serializable {
         try {
             this.parser = (Parser) clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
+            logger.error("set parser error!", e);
         }
         return this;
     }
 
     public Octopus start() {
+        if (parser == null) {
+            logger.error("parser is null , please set parser and try again later");
+        }
         cycleTask();
 
         return fetchTask();
     }
 
     private Octopus fetchTask() {
-        if (parser == null) {
-            logger.error("parser is null , please set parser and try again later");
-            return this;
-        }
 
         if (handler == null) {
-            logger.warn("handler is null , parser's data does't handle");
+            logger.warn("handler is null , parser's octopusData does't handle");
         }
 
         String url = request.getUrl();
@@ -130,12 +128,16 @@ public class Octopus implements Serializable {
         // 下载页面, 结果存储在 #simulator.response 中
         simulator.downLoad(url);
 
-        // 解析页面, 输入 simulator.response 输出 data
-        Data data = parser.parse(request, simulator.getResponse());
+        if (parser == null) {
+            logger.info("fetch page info : \n{}", simulator.getResponse().getDocument());
+            return this;
+        }
 
+        // 解析页面, 输入 simulator.response 输出 octopusData
+        OctopusData octopusData = parser.parse(request, simulator.getResponse());
         // 处理对象
         if (handler != null) {
-            handler.handler(data);
+            handler.handler(octopusData);
         }
         // 如果地址不为空, 继续爬取
         return fetchTask();
@@ -159,11 +161,15 @@ public class Octopus implements Serializable {
     /**
      * 设置数据处理
      *
-     * @param handler 数据处理
+     * @param clazz 数据处理器class
      * @return 章鱼
      */
-    public Octopus handler(Handler handler) {
-        this.handler = handler;
+    public Octopus handler(Class clazz) {
+        try {
+            this.handler = (Handler) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.error("set handler error!", e);
+        }
         return this;
     }
 

@@ -1,6 +1,7 @@
 package org.lvgo.octopus.assist;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * 数据载体
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * @version 1.0
  * @date 2020/5/28 13:35
  */
-public class Data implements Serializable {
+public class OctopusData extends HashMap implements Serializable {
     private static final long serialVersionUID = 5191403235109447830L;
 
     private int type;

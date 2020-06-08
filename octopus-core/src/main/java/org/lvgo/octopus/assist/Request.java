@@ -43,6 +43,9 @@ public class Request {
     }
 
     public void putUrl(String url) {
+        if (!url.contains("http://") && !url.contains("https://")) {
+            url = "https://" + url;
+        }
         urlQueue.add(url);
         log.info("加入地址成功! 当前url队列大小:{}", urlQueue.size());
     }
